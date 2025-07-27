@@ -1,0 +1,21 @@
+node_modules/
+.env
+coverage/
+.DS_Store
+*.log
+dist/
+build/
+.idea/
+.vscode/
+*.swp
+
+# React app
+talent-dashboard/node_modules/
+talent-dashboard/build/
+talent-dashboard/.env.local
+talent-dashboard/.env.development.local
+talent-dashboard/.env.test.local
+talent-dashboard/.env.production.local
+talent-dashboard/npm-debug.log*
+talent-dashboard/yarn-debug.log*
+talent-dashboard/yarn-error.log*
