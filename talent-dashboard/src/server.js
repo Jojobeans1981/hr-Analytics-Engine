@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3001;
 // Start server without MongoDB for now
 app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
-  console.log(`э║А Server running on http://localhost:${PORT}`);
+  console.log(`ЁЯЪА Server running on http://localhost:${PORT}`);
   console.log(`тЪая╕П  Running without MongoDB - database features disabled`);
 });
 
