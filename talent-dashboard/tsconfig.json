@@ -1,3 +1,4 @@
+
 {
   "compilerOptions": {
     "target": "es5",
@@ -18,9 +19,28 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@mui/*": ["node_modules/@mui/*"]
+    },
+    "types": [
+      "node",
+      "jest",
+      "@emotion/react",
+      "@emotion/styled",
+      "@mui/material"
+    ]
   },
   "include": [
-    "src"
+    "src",
+    "types"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/__tests__/*",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }

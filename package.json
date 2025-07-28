@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node --no-experimental-fetch ./fix-path-resolution.js",
+    "fix-start": "node ./fix-path-resolution.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js",
     "build": "npm run test && npm run lint",
     "lint": "eslint src/",
     "format": "prettier --write 'src/**/*.js'"
@@ -18,6 +19,9 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.2.0",
     "@sendgrid/mail": "^8.1.5",
     "@sentry/node": "^9.42.0",
     "@sentry/tracing": "^7.120.3",
@@ -44,6 +48,7 @@
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.5",
     "pdfkit": "^0.17.1",
+    "react-scripts": "^5.0.1",
     "redis": "^5.6.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
