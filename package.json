@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "start": "node --no-experimental-fetch ./fix-path-resolution.js",
+    "start": "node --no-experimental-fetch ./src/server.js",
     "fix-start": "node ./fix-path-resolution.js",
     "test": "jest",
     "test:watch": "jest --watch",

@@ -1,45 +1,16 @@
-import { useEffect, useState } from 'react';
-import Grid from '@mui/material/Grid';import {
-  Card,
-  CardContent,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
-  Paper,
-  Box,
-  Container // Added missing import
-} from '@mui/material';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import  Grid  from '@mui/material/Grid';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
 
-interface Assessment {
-  id: number;
-  employeeName: string;
-  riskScore: number;
-  date: string;
-  status: string;
-}
 
-interface DashboardData {
-  employees: number;
-  highRisk: number;
-  assessments: number;
-  teams: number;
-  recentAssessments: Assessment[];
-  riskDistribution: { name: string; count: number }[];
-}
-
-import {
-  Grid, // Using stable Grid component
-  Card,
-  CardContent,
-  Typography,
-  Container
-} from '@mui/material';
+// interface Assessment {
+//   id: number;
+//   employeeName: string;
+//   riskScore: number;
+//   date: string;
+//   status: string;
+// }
 
 interface MetricCardProps {
   title: string;
@@ -67,25 +38,25 @@ const Dashboard = () => {
     { title: 'Teams', value: 5, bgColor: '#e8f5e9' }
   ];
 
-  return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+  
+   return (
+    <>
+    <Grid maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h4" gutterBottom>
         Talent Risk Dashboard
       </Typography>
-      
       <Grid container spacing={3}>
         {metrics.map((metric, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <MetricCard 
-              title={metric.title} 
-              value={metric.value} 
-              backgroundColor={metric.bgColor} 
+          <Grid component={Card} key={index}>
+            <MetricCard
+              title={metric.title}
+              value={metric.value}
+              backgroundColor={metric.bgColor}
             />
           </Grid>
         ))}
         
-        {/* Full-width section example */}
-        <Grid item xs={12}>
+        <Grid component={Card}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -96,7 +67,8 @@ const Dashboard = () => {
           </Card>
         </Grid>
       </Grid>
-    </Container>
+    </Grid>
+        </>
   );
 };
 
