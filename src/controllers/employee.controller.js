@@ -1,5 +1,16 @@
 const Employee = require('../models/Employee');
 const logger = require('../config/logger');
+const { NotFoundError, BadRequestError } = require('../errors'); // Custom error classes
+
+// Helper for pagination metadata
+const getPaginationMeta = (data, count, page, limit) => ({
+  success: true,
+  count: data.length,
+  total: count,
+  totalPages: Math.ceil(count / limit),
+  currentPage: Number(page),
+  data
+});
 
 exports.getAllEmployees = async (req, res, next) => {
   try {
@@ -8,30 +19,36 @@ exports.getAllEmployees = async (req, res, next) => {
       limit = 10, 
       sort = 'name',
       department,
-      riskLevel 
+      riskLevel,
+      search
     } = req.query;
 
+    // Build query
     const query = {};
     if (department) query.department = department;
     if (riskLevel) query.currentRiskLevel = riskLevel;
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
 
-    const employees = await Employee.find(query)
-      .populate('skills')
-      .populate('team')
-      .sort(sort)
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+    // Validate pagination inputs
+    const validatedLimit = Math.min(Number(limit), 100);
+    const validatedPage = Math.max(Number(page), 1);
 
-    const count = await Employee.countDocuments(query);
+    const [employees, count] = await Promise.all([
+      Employee.find(query)
+        .populate('skills team', 'name level') // Only select needed fields
+        .sort(sort)
+        .limit(validatedLimit)
+        .skip((validatedPage - 1) * validatedLimit)
+        .lean(), // Convert to plain JS objects
+      Employee.countDocuments(query)
+    ]);
 
-    res.status(200).json({
-      success: true,
-      count: employees.length,
-      total: count,
-      pages: Math.ceil(count / limit),
-      currentPage: page,
-      data: employees
-    });
+    res.status(200).json(getPaginationMeta(employees, count, validatedPage, validatedLimit));
   } catch (error) {
     next(error);
   }
@@ -40,17 +57,16 @@ exports.getAllEmployees = async (req, res, next) => {
 exports.getEmployee = async (req, res, next) => {
   try {
     const employee = await Employee.findById(req.params.id)
-      .populate('skills')
-      .populate('team')
-      .populate('manager');
+      .populate('skills team manager', 'name email position')
+      .lean();
 
     if (!employee) {
-      return res.status(404).json({ error: 'Employee not found' });
+      throw new NotFoundError('Employee not found');
     }
 
-    res.status(200).json({
+    res.status(200).json({ 
       success: true,
-      data: employee
+      data: employee 
     });
   } catch (error) {
     next(error);
@@ -59,40 +75,64 @@ exports.getEmployee = async (req, res, next) => {
 
 exports.createEmployee = async (req, res, next) => {
   try {
+    // Validate required fields
+    if (!req.body.name || !req.body.email) {
+      throw new BadRequestError('Name and email are required');
+    }
+
     const employee = await Employee.create({
       ...req.body,
       createdBy: req.user?.id
     });
 
-    logger.info(`New employee created: ${employee.name}`);
+    logger.info(`New employee created`, { 
+      employeeId: employee._id,
+      actionBy: req.user?.id 
+    });
 
     res.status(201).json({
       success: true,
-      data: employee
+      data: employee.toObject() // Convert Mongoose doc to plain object
     });
   } catch (error) {
-    next(error);
+    if (error.code === 11000) { // MongoDB duplicate key error
+      next(new BadRequestError('Email already exists'));
+    } else {
+      next(error);
+    }
   }
 };
 
 exports.updateEmployee = async (req, res, next) => {
   try {
-    const employee = await Employee.findByIdAndUpdate(
-      req.params.id,
-      { 
-        ...req.body,
-        updatedAt: Date.now()
-      },
-      { new: true, runValidators: true }
+    const updates = Object.keys(req.body);
+    const allowedUpdates = ['name', 'email', 'department', 'position'];
+    const isValidOperation = updates.every(update => 
+      allowedUpdates.includes(update)
     );
 
-    if (!employee) {
-      return res.status(404).json({ error: 'Employee not found' });
+    if (!isValidOperation) {
+      throw new BadRequestError('Invalid updates!');
     }
 
-    res.status(200).json({
-      success: true,
-      data: employee
+    const employee = await Employee.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    ).lean();
+
+    if (!employee) {
+      throw new NotFoundError('Employee not found');
+    }
+
+    logger.info(`Employee updated`, { 
+      employeeId: employee._id,
+      actionBy: req.user?.id 
+    });
+
+    res.status(200).json({ 
+      success: true, 
+      data: employee 
     });
   } catch (error) {
     next(error);
@@ -101,76 +141,20 @@ exports.updateEmployee = async (req, res, next) => {
 
 exports.deleteEmployee = async (req, res, next) => {
   try {
-    const employee = await Employee.findByIdAndDelete(req.params.id);
+    const employee = await Employee.findByIdAndDelete(req.params.id).lean();
 
     if (!employee) {
-      return res.status(404).json({ error: 'Employee not found' });
+      throw new NotFoundError('Employee not found');
     }
 
-    logger.info(`Employee deleted: ${employee.name}`);
-
-    res.status(200).json({
-      success: true,
-      message: 'Employee deleted successfully'
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.addFeedback = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { feedback, sentiment, date } = req.body;
-
-    const employee = await Employee.findById(id);
-    if (!employee) {
-      return res.status(404).json({ error: 'Employee not found' });
-    }
-
-    employee.feedbackHistory.push({
-      feedback,
-      sentiment: sentiment || 0,
-      date: date || new Date(),
-      addedBy: req.user?.id
+    logger.info(`Employee deleted`, { 
+      employeeId: employee._id,
+      actionBy: req.user?.id 
     });
 
-    await employee.save();
-
-    res.status(200).json({
+    res.status(200).json({ 
       success: true,
-      message: 'Feedback added successfully',
-      data: employee
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.updatePerformance = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { scores } = req.body;
-
-    const employee = await Employee.findById(id);
-    if (!employee) {
-      return res.status(404).json({ error: 'Employee not found' });
-    }
-
-    // Add new scores to the array
-    employee.performanceScores.push(...scores);
-    
-    // Keep only the last 12 scores
-    if (employee.performanceScores.length > 12) {
-      employee.performanceScores = employee.performanceScores.slice(-12);
-    }
-
-    await employee.save();
-
-    res.status(200).json({
-      success: true,
-      message: 'Performance scores updated',
-      data: employee
+      data: employee 
     });
   } catch (error) {
     next(error);
