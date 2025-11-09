@@ -27,6 +27,7 @@ import WarningIcon from "@mui/icons-material/Warning";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 
+
 import {
   PieChart,
   Pie,
@@ -68,7 +69,7 @@ interface Summary {
 }
 
 interface WebSocketMessage {
-  type: 'employee_updated' | 'employee_added' | 'employee_removed' | 'risk_alert' | 'welcome' | 'metrics_update';
+  type: 'employee_updated' | 'employee_added' | 'employee_removed' | 'risk_alert' | 'welcome' | 'metrics_update' | 'heartbeat';
   data?: any;
   message?: string;
   timestamp?: string;
@@ -93,7 +94,7 @@ interface SystemAlert {
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 const RISK_COLORS = {
   Low: "#4CAF50",
-  Medium: "#FFC107", 
+  Medium: "#FFC107",
   High: "#F44336"
 };
 
@@ -109,12 +110,22 @@ const Dashboard: React.FC = () => {
   const [timeRange, setTimeRange] = useState('1h');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Debug effect
+  useEffect(() => {
+    console.log('🔍 DEBUG - Current state:', {
+      summary,
+      employees,
+      hasSummary: !!summary,
+      hasEmployees: !!employees
+    });
+  }, [summary, employees]);
+
   // Mock metrics data for Prometheus-style charts
   const riskTrendData = useMemo((): MetricData[] => {
     const data: MetricData[] = [];
     const points = timeRange === '1h' ? 60 : timeRange === '6h' ? 360 : 1440;
     const baseValue = summary?.avgRisk || 45;
-    
+
     for (let i = 0; i < points; i++) {
       data.push({
         timestamp: Date.now() - (points - i) * 60000,
@@ -130,7 +141,7 @@ const Dashboard: React.FC = () => {
     const data: MetricData[] = [];
     const points = timeRange === '1h' ? 60 : timeRange === '6h' ? 360 : 1440;
     const baseValue = summary?.totalEmployees || 100;
-    
+
     for (let i = 0; i < points; i++) {
       data.push({
         timestamp: Date.now() - (points - i) * 60000,
@@ -146,44 +157,39 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const connectWebSocket = () => {
       setConnectionStatus('connecting');
-      
-      try {
-        const socket = new WebSocket('ws://localhost:3001');
 
-        socket.onopen = () => {
-          console.log('✅ Connected to WebSocket server');
-          setConnectionStatus('connected');
-          setLastUpdate(new Date().toLocaleTimeString());
-        };
+      const socket = new WebSocket('ws://localhost:3001');
 
-        socket.onmessage = (event) => {
-          try {
-            const message: WebSocketMessage = JSON.parse(event.data);
-            console.log('📨 WebSocket message received:', message);
-            handleWebSocketMessage(message);
-          } catch (error) {
-            console.log('Raw WebSocket message:', event.data);
-          }
-        };
+      socket.onopen = () => {
+        console.log('✅ Connected to WebSocket server');
+        setConnectionStatus('connected');
+        setLastUpdate(new Date().toLocaleTimeString());
+      };
 
-        socket.onclose = () => {
-          console.log('❌ WebSocket connection closed');
-          setConnectionStatus('disconnected');
-          setTimeout(connectWebSocket, 3000);
-        };
+      socket.onmessage = (event) => {
+        try {
+          const message: WebSocketMessage = JSON.parse(event.data);
+          console.log('📨 WebSocket message received:', message);
+          handleWebSocketMessage(message);
+        } catch (error) {
+          console.log('Raw WebSocket message:', event.data);
+        }
+      };
 
-        socket.onerror = (error) => {
-          console.error('WebSocket error:', error);
-          setConnectionStatus('disconnected');
-        };
-
-        return () => {
-          socket.close();
-        };
-      } catch (error) {
-        console.error('Failed to create WebSocket:', error);
+      socket.onclose = () => {
+        console.log('❌ WebSocket connection closed');
         setConnectionStatus('disconnected');
-      }
+        setTimeout(connectWebSocket, 3000);
+      };
+
+      socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setConnectionStatus('disconnected');
+      };
+
+      return () => {
+        socket.close();
+      };
     };
 
     connectWebSocket();
@@ -191,37 +197,41 @@ const Dashboard: React.FC = () => {
 
   const handleWebSocketMessage = (message: WebSocketMessage) => {
     setLastUpdate(new Date().toLocaleTimeString());
-    
-   switch (message.type) {
-  case 'employee_updated':
-    setEmployees(prev => prev ? prev.map(emp => 
-      emp._id === message.data._id ? { ...emp, ...message.data } : emp
-    ) : [message.data]); // If no employees exist, create array with this one
-    addAlert('warning', `Employee Risk Updated`, `${message.data.name} risk score changed to ${message.data.riskScore}`);
-    break;
-        
+
+    switch (message.type) {
+      case 'employee_updated':
+        setEmployees(prev => prev ? prev.map(emp =>
+          emp._id === message.data._id ? { ...emp, ...message.data } : emp
+        ) : [message.data]);
+        addAlert('warning', `Employee Risk Updated`, `${message.data.name} risk score changed to ${message.data.riskScore}`);
+        break;
+
       case 'employee_added':
         setEmployees(prev => [...prev, message.data]);
         addAlert('info', 'New Employee Added', `${message.data.name} joined ${message.data.department}`);
         break;
-        
+
       case 'employee_removed':
         setEmployees(prev => prev.filter(emp => emp._id !== message.data._id));
         addAlert('warning', 'Employee Removed', `${message.data.name} was removed from the system`);
         break;
-        
+
       case 'risk_alert':
         addAlert('error', 'High Risk Alert', message.message || 'Critical risk level detected');
         break;
-        
+
       case 'metrics_update':
         refreshSummaryData();
         break;
-        
+
       case 'welcome':
         console.log('WebSocket:', message.message);
         break;
-        
+
+      case 'heartbeat':
+        console.log('💓 Heartbeat received');
+        break;
+
       default:
         console.log('Unknown message type:', message);
     }
@@ -236,9 +246,9 @@ const Dashboard: React.FC = () => {
       activeSince: Date.now(),
       instance: 'talent-risk-system'
     };
-    
+
     setAlerts(prev => [newAlert, ...prev.slice(0, 9)]); // Keep last 10 alerts
-    
+
     // Auto-remove info alerts after 30 seconds, others after 2 minutes
     const timeout = severity === 'info' ? 30000 : 120000;
     setTimeout(() => {
@@ -264,21 +274,48 @@ const Dashboard: React.FC = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
+        console.log('🔄 Starting API calls...');
+        
         const [summaryData, employeesData] = await Promise.all([
           getDashboardMetrics(),
           getEmployees()
         ]);
+        
+        console.log('✅ API Responses:', {
+          summaryData,
+          employeesData,
+          hasSummaryData: !!summaryData,
+          hasEmployeesData: !!employeesData,
+          employeesLength: employeesData?.length
+        });
+        
         setSummary(summaryData);
-        setEmployees(employeesData);
+        setEmployees(employeesData || []);
       } catch (error) {
-        console.error('Failed to load initial data:', error);
+        console.error('❌ API Error:', error);
         addAlert('error', 'Initialization Error', 'Failed to load dashboard data');
+        
+        // If APIs fail, just set empty states
+        setSummary(null);
+        setEmployees([]);
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
   }, []);
+
+  // ✅ LOADING CHECK - Only check for summary
+  if (!summary) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <Typography variant="h4">Loading Dashboard Data...</Typography>
+        <Typography variant="body1" color="textSecondary">
+          Initializing dashboard... (Employees loaded: {employees.length})
+        </Typography>
+      </div>
+    );
+  }
 
   const handleClearFilters = () => {
     setSearchTerm("");
@@ -295,15 +332,7 @@ const Dashboard: React.FC = () => {
     return matchesSearch && matchesDept && matchesRisk;
   });
 
-  if (!summary) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <Typography variant="h6">Loading dashboard data...</Typography>
-      </Box>
-    );
-  }
-
-  const departmentData = summary.departments.map((dept) => ({
+  const departmentData = summary.departments?.map((dept) => ({
     name: dept,
     value: employees.filter((e) => e.department === dept).length,
   }));
@@ -315,7 +344,7 @@ const Dashboard: React.FC = () => {
   ];
 
   // Calculate metrics for Prometheus-style display
-  const highRiskPercentage = (summary.riskLevels.High / summary.totalEmployees * 100).toFixed(1);
+  const highRiskPercentage = ((summary?.riskLevels?.High || 0) / (summary?.totalEmployees || 1) * 100).toFixed(1);
   const riskTrend = summary.avgRisk > 50 ? 'up' : 'down';
 
   return (
@@ -346,7 +375,7 @@ const Dashboard: React.FC = () => {
             )}
           </Box>
         </Box>
-        
+
         <Box display="flex" gap={1}>
           <FormControl size="small" variant="outlined">
             <InputLabel>Time Range</InputLabel>
@@ -360,8 +389,8 @@ const Dashboard: React.FC = () => {
               <MenuItem value="24h">24h</MenuItem>
             </Select>
           </FormControl>
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             onClick={refreshSummaryData}
             disabled={isLoading}
             startIcon={<TrendingUpIcon />}
@@ -381,8 +410,8 @@ const Dashboard: React.FC = () => {
               🚨 Active Alerts
             </Typography>
             <Box display="flex" flexDirection="column" gap={1}>
-              {alerts.map((alert) => (
-                <Alert 
+              {alerts?.map((alert) => (
+                <Alert
                   key={alert.id}
                   severity={alert.severity}
                   icon={alert.severity === 'error' ? <WarningIcon /> : undefined}
@@ -422,7 +451,9 @@ const Dashboard: React.FC = () => {
                 <Typography variant="h6">Avg Risk Score</Typography>
               </Box>
               <Box display="flex" alignItems="center" gap={1}>
-                <Typography variant="h4">{summary.avgRisk.toFixed(1)}</Typography>
+                <Typography variant="h4">
+                  {(summary?.avgRisk ?? 0).toFixed(1)}
+                </Typography>
                 {riskTrend === 'up' ? <TrendingUpIcon color="error" /> : <TrendingDownIcon color="success" />}
               </Box>
               <Typography variant="caption" color="textSecondary">
@@ -456,7 +487,7 @@ const Dashboard: React.FC = () => {
                 <ApartmentIcon style={{ color: "#00C49F" }} />
                 <Typography variant="h6">Departments</Typography>
               </Box>
-              <Typography variant="h4">{summary.departments.length}</Typography>
+<Typography variant="h4">{summary?.departments?.length ?? 0}</Typography>
               <Typography variant="caption" color="textSecondary">
                 Active departments
               </Typography>
@@ -476,19 +507,19 @@ const Dashboard: React.FC = () => {
               <ResponsiveContainer width="100%" height={200}>
                 <AreaChart data={riskTrendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="timestamp" 
+                  <XAxis
+                    dataKey="timestamp"
                     tickFormatter={(value) => new Date(value).toLocaleTimeString()}
                   />
                   <YAxis />
-                  <Tooltip 
+                  <Tooltip
                     labelFormatter={(value) => new Date(value).toLocaleString()}
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke="#8884d8" 
-                    fill="#8884d8" 
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#8884d8"
+                    fill="#8884d8"
                     fillOpacity={0.3}
                   />
                 </AreaChart>
@@ -506,18 +537,18 @@ const Dashboard: React.FC = () => {
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={employeeCountData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="timestamp" 
+                  <XAxis
+                    dataKey="timestamp"
                     tickFormatter={(value) => new Date(value).toLocaleTimeString()}
                   />
                   <YAxis />
-                  <Tooltip 
+                  <Tooltip
                     labelFormatter={(value) => new Date(value).toLocaleString()}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke="#82ca9d" 
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#82ca9d"
                     strokeWidth={2}
                     dot={false}
                   />
@@ -547,7 +578,7 @@ const Dashboard: React.FC = () => {
                     outerRadius={100}
                     label
                   >
-                    {departmentData.map((_, i) => (
+                    {departmentData?.map((_, i) => (
                       <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
                   </Pie>
@@ -570,7 +601,7 @@ const Dashboard: React.FC = () => {
                   <YAxis allowDecimals={false} />
                   <Tooltip />
                   <Bar dataKey="value" fill="#8884d8">
-                    {riskData.map((entry, index) => (
+                    {riskData?.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Bar>
@@ -587,13 +618,13 @@ const Dashboard: React.FC = () => {
                 Risk Level Breakdown
               </Typography>
               <Box display="flex" flexDirection="column" gap={2} mt={2}>
-                {riskData.map((risk) => (
+                {riskData?.map((risk) => (
                   <Box key={risk.name} display="flex" justifyContent="space-between" alignItems="center">
                     <Box display="flex" alignItems="center" gap={1}>
-                      <Box 
-                        width={12} 
-                        height={12} 
-                        borderRadius="50%" 
+                      <Box
+                        width={12}
+                        height={12}
+                        borderRadius="50%"
                         bgcolor={risk.color}
                       />
                       <Typography variant="body2">{risk.name}</Typography>
@@ -620,7 +651,7 @@ const Dashboard: React.FC = () => {
           <Typography variant="h6" gutterBottom>
             Employee Risk Registry
           </Typography>
-          
+
           {/* Filters */}
           <Box display="flex" gap={2} alignItems="center" mb={3} flexWrap="wrap">
             <TextField
@@ -639,7 +670,7 @@ const Dashboard: React.FC = () => {
                 label="Department"
               >
                 <MenuItem value="">All</MenuItem>
-                {summary.departments.map((dept) => (
+                {summary.departments?.map((dept) => (
                   <MenuItem key={dept} value={dept}>
                     {dept}
                   </MenuItem>
@@ -687,7 +718,7 @@ const Dashboard: React.FC = () => {
               </thead>
               <tbody>
                 {filteredEmployees.length > 0 ? (
-                  filteredEmployees.map((emp) => (
+                  filteredEmployees?.map((emp) => (
                     <tr key={emp._id} style={{ borderBottom: '1px solid #e0e0e0' }}>
                       <td style={{ padding: '12px', border: '1px solid #e0e0e0' }}>{emp.name}</td>
                       <td style={{ padding: '12px', border: '1px solid #e0e0e0' }}>{emp.email}</td>
