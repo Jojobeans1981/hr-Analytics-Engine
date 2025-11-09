@@ -36,7 +36,7 @@
   "include": [
     "src",
     "types"
-  ],
+, "../server/src/api/dashboard.api.ts"  ],
   "exclude": [
     "node_modules",
     "**/__tests__/*",

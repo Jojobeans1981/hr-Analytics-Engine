@@ -1,9 +1,9 @@
-import { Db } from "mongodb"; // or your DB type
+import { User } from "../models/User"; // Adjust path to your User model
 
 declare global {
   namespace Express {
     interface Request {
-      db?: Db; // or your DB client type
+      user?: User & { id: string }; // Add whatever shape your middleware attaches
     }
   }
 }

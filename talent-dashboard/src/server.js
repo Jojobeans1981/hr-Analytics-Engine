@@ -47,7 +47,7 @@ const startServer = async () => {
   
   // Simple Test Route
   app.get('/', (req, res) => {
-    res.send('Talent Analytics API Running');
+    res.send('Welcome to Prometheus!!');
   });
   
   // Actual API Routes would go here

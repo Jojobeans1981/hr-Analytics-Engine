@@ -10,8 +10,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Routes (adjust based on your structure)
-import apiRouter from './routes/api';
-
+import apiRouter from "./routes/index.js"
 const app = express();
 
 // Middleware

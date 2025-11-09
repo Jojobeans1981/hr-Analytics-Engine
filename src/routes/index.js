@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const assessmentRoutes = require('./assessment.routes');
-const employeeRoutes = require('./employee.routes');
+const employeeRoutes = require('./employee.routes.ts');
 const teamRoutes = require('./team.routes');
 const authRoutes = require('./auth.routes');
 const docsRoutes = require('./docs.routes');

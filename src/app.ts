@@ -1,13 +1,13 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const compression = require('compression');
-const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
 
-const routes = require('./routes');
-const errorHandler = require('./middleware/error.middleware');
-const logger = require('./config/logger');
+import routes from './routes';
+import errorHandler from './middleware/error.middleware';
+import logger from './config/logger';
 
 const app = express();
 
@@ -20,8 +20,8 @@ app.use(cors({
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100
 });
 app.use('/api/', limiter);
 
@@ -44,4 +44,4 @@ app.get('/health', (req, res) => {
 // Error handling
 app.use(errorHandler);
 
-module.exports = app;
+export default app;

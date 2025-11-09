@@ -1,5 +1,4 @@
 import { createRoot } from 'react-dom/client';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import App from './App';
 
@@ -18,8 +17,8 @@ const theme = createTheme();
 
 // 4. Render the app
 root.render(
-  <ThemeProvider theme={theme}>
+  
     <CssBaseline />
     <App />
-  </ThemeProvider>
+  
 );

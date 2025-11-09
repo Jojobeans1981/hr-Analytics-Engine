@@ -1,17 +1,28 @@
 import { Request, Response } from 'express';
-import { AssessmentService } from '../server/src/services/assessment.service';
-import { ApiResponse } from '../server/src/dtos/api-response.dto';
-import { validateRequest } from '../server/src/middleware/validation.middleware';
+import { AssessmentService } from '../services/assessments.service.js';
+import { ApiResponse } from '../dtos/api-response.dto.js';
+import { validateRequest } from '../middleware/validation.middleware.js';
 import { 
-  assessmentCreateSchema,
-  assessmentUpdateSchema
-} from '../server/src/validations/assessment.validation';
+  createAssessmentSchema,
+  updateAssessmentSchema
+} from '../validations/assessment.validation.js';
+
+
+type AppError = Error & { statusCode?: number };
+
 
 export class AssessmentController {
-  static async createAssessment(req: Request, res: Response) {
+  static async createAssessmentSchema(req: Request, res: Response) {
     try {
-      await validateRequest(assessmentCreateSchema, req);
+      // Validation should be handled by middleware in the route definition
       
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({
+          success: false,
+          error: { message: 'Unauthorized: User not authenticated.' }
+        });
+      }
+
       const assessment = await AssessmentService.create(
         req.body,
         req.user.id
@@ -24,10 +35,11 @@ export class AssessmentController {
 
       res.status(201).json(response);
     } catch (error) {
-      const status = error.statusCode || 500;
+      const err = error as AppError;
+      const status = err.statusCode || 500;
       res.status(status).json({
         success: false,
-        error: { message: error.message }
+        error: { message: err.message }
       });
     }
   }
@@ -43,10 +55,11 @@ export class AssessmentController {
 
       res.status(200).json(response);
     } catch (error) {
-      const status = error.statusCode || 500;
+      const err = error as AppError;
+      const status = err.statusCode || 500;
       res.status(status).json({
         success: false,
-        error: { message: error.message }
+        error: { message: err.message }
       });
     }
   }
@@ -64,17 +77,18 @@ export class AssessmentController {
 
       res.status(200).json(response);
     } catch (error) {
-      const status = error.statusCode || 500;
+      const err = error as AppError;
+      const status = err.statusCode || 500;
       res.status(status).json({
         success: false,
-        error: { message: error.message }
+        error: { message: err.message }
       });
     }
   }
 
-  static async updateAssessment(req: Request, res: Response) {
+  static async updateAssessmentSchema(req: Request, res: Response) {
     try {
-      await validateRequest(assessmentUpdateSchema, req);
+      // Validation should be handled by middleware in the route definition
       
       const assessment = await AssessmentService.update(
         req.params.id,
@@ -88,10 +102,11 @@ export class AssessmentController {
 
       res.status(200).json(response);
     } catch (error) {
-      const status = error.statusCode || 500;
+      const err = error as AppError;
+      const status = err.statusCode || 500;
       res.status(status).json({
         success: false,
-        error: { message: error.message }
+        error: { message: err.message }
       });
     }
   }
@@ -107,10 +122,11 @@ export class AssessmentController {
 
       res.status(204).json(response);
     } catch (error) {
-      const status = error.statusCode || 500;
+      const err = error as AppError;
+      const status = err.statusCode || 500;
       res.status(status).json({
         success: false,
-        error: { message: error.message }
+        error: { message: err.message }
       });
     }
   }

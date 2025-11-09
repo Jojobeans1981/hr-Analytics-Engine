@@ -66,7 +66,7 @@ export const getDashboardMetrics = async (req: Request, res: Response) => {
         assessmentsCount,
         skillsCount
       },
-      recentAssessments: recentAssessments.map((a: Assessment) => ({
+      recentAssessments: recentAssessments.map(a => ({
         _id: a._id,
         employeeName: a.employee?.name || 'Unknown',
         riskScore: a.overallRisk,
