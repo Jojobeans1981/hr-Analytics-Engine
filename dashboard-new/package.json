@@ -22,10 +22,11 @@
     "web-vitals": "^2.1.4",
     "ws": "^8.14.2"
   },
-  "scripts": {
+ "scripts": {
+    "build": "CI=false npm run test -- --passWithNoTests && npm run lint -- --quiet && react-scripts build",
+    "test": "react-scripts test --watchAll=false --passWithNoTests",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx --quiet",
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "browserslist": {
