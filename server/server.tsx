@@ -2,11 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
-const WebSocket = require('ws');import mongoose from 'mongoose';
+const WebSocket = require('ws');
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import mongoose from 'mongoose';
+
 
 // Load environment variables
 dotenv.config();
@@ -15,7 +17,13 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 // Create HTTP server from Express app
+
+
 const server = http.createServer(app);
+mongoose.connect(process.env.MONGODB_URI!)
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch(err => console.log('❌ MongoDB connection error:', err));
+
 
 // Create WebSocket server attached to the same server
 const wss = new WebSocket.Server({ 
