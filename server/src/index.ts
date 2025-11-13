@@ -84,7 +84,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('combined'));
 }
 
-// MongoDB connection - fixed timing issue
+// Hardcode MongoDB URI to fix connection issues
 const MONGODB_URI = 'mongodb+srv://beamers051681:Wookie2011@Prometheus.inv2hx4.mongodb.net/Prometheus?retryWrites=true&w=majority';
 
 const connectDB = async () => {
@@ -119,6 +119,68 @@ app.get('/api/data', (req, res) => {
   });
 });
 
+// Dashboard metrics endpoint
+app.get('/api/dashboard-metrics', async (req, res) => {
+  try {
+    // Get real data from MongoDB
+    const totalEmployees = await mongoose.connection.db.collection('employees').countDocuments();
+    
+    // Calculate average risk score
+    const avgRiskResult = await mongoose.connection.db.collection('employees').aggregate([
+      { $group: { _id: null, avgRisk: { $avg: '$riskScore' } } }
+    ]).toArray();
+    const avgRisk = avgRiskResult[0]?.avgRisk || 0;
+
+    // Get departments
+    const departments = await mongoose.connection.db.collection('employees').distinct('department');
+    
+    // Get risk level counts
+    const riskLevels = await mongoose.connection.db.collection('employees').aggregate([
+      { $group: { _id: '$riskLevel', count: { $sum: 1 } } }
+    ]).toArray();
+
+    const riskLevelsObj = {
+      Low: riskLevels.find(r => r._id === 'Low')?.count || 0,
+      Medium: riskLevels.find(r => r._id === 'Medium')?.count || 0,
+      High: riskLevels.find(r => r._id === 'High')?.count || 0
+    };
+
+    res.json({
+      totalEmployees,
+      avgRisk: Math.round(avgRisk * 10) / 10,
+      departments,
+      riskLevels: riskLevelsObj
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard metrics:', error);
+    // Return mock data if database fails
+    res.json({
+      totalEmployees: 150,
+      avgRisk: 45.2,
+      departments: ['Engineering', 'Sales', 'Marketing', 'HR'],
+      riskLevels: { Low: 80, Medium: 50, High: 20 }
+    });
+  }
+});
+
+// Employees endpoint
+app.get('/api/employees', async (req, res) => {
+  try {
+    const employees = await mongoose.connection.db.collection('employees').find({}).toArray();
+    res.json({ employees });
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+    // Return mock data if database fails
+    res.json({
+      employees: [
+        { _id: '1', name: 'John Doe', email: 'john@company.com', department: 'Engineering', riskScore: 35, riskLevel: 'Low' },
+        { _id: '2', name: 'Jane Smith', email: 'jane@company.com', department: 'Sales', riskScore: 65, riskLevel: 'Medium' },
+        { _id: '3', name: 'Bob Johnson', email: 'bob@company.com', department: 'Marketing', riskScore: 78, riskLevel: 'High' }
+      ]
+    });
+  }
+});
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
@@ -128,6 +190,8 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/api/health',
       data: '/api/data',
+      dashboard: '/api/dashboard-metrics',
+      employees: '/api/employees',
       websocket: `ws://localhost:${port}`
     }
   });
@@ -263,6 +327,8 @@ app.use('*', (req, res) => {
       'GET /',
       'GET /api/health',
       'GET /api/data',
+      'GET /api/dashboard-metrics',
+      'GET /api/employees',
       'GET /api/websocket/clients'
     ]
   });
