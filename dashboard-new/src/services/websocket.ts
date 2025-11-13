@@ -5,7 +5,7 @@ class WebSocketService {
 
   connect() {
     try {
-      this.socket = new WebSocket('ws://localhost:3001');
+this.socket = new WebSocket('wss://prometheus-talent-engine-production.up.railway.app');
       
       this.socket.onopen = () => {
         console.log('✅ Connected to WebSocket server');

@@ -158,7 +158,7 @@ const Dashboard: React.FC = () => {
     const connectWebSocket = () => {
       setConnectionStatus('connecting');
 
-      const socket = new WebSocket('ws://localhost:3001');
+      const socket = new WebSocket('wss://prometheus-talent-engine-production.up.railway.app');
 
       socket.onopen = () => {
         console.log('✅ Connected to WebSocket server');
