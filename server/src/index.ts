@@ -85,17 +85,14 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // MongoDB connection - fixed timing issue
+const MONGODB_URI = 'mongodb+srv://beamers051681:Wookie2011@Prometheus.inv2hx4.mongodb.net/Prometheus?retryWrites=true&w=majority';
+
 const connectDB = async () => {
   try {
-    if (!process.env.MONGODB_URI) {
-      throw new Error('MONGODB_URI is not defined in environment');
-    }
-    
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(MONGODB_URI);
     console.log('✅ MongoDB Connected successfully');
   } catch (error) {
     console.log('❌ MongoDB connection failed:', error);
-    // Don't exit the process, just log the error
   }
 };
 
