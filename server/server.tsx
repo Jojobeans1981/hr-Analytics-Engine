@@ -2,8 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
-import WebSocket from 'ws';
-import mongoose from 'mongoose';
+const WebSocket = require('ws');import mongoose from 'mongoose';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
@@ -172,7 +171,7 @@ wss.on('connection', (ws, request) => {
         message: `User sent: ${typeof parsedMessage === 'object' ? JSON.stringify(parsedMessage) : parsedMessage}`,
         timestamp: new Date().toISOString(),
         connections: wss.clients.size
-      }), ws); // Exclude the sender
+      }), ws as any); // Exclude the sender
       
     } catch (error) {
       console.error('Error processing message:', error);
@@ -224,8 +223,9 @@ function broadcastToAll(message: string, excludeWs?: WebSocket) {
 }
 
 // Get all connected clients (useful for admin)
+// Get all connected clients (useful for admin)
 app.get('/api/websocket/clients', (req, res) => {
-  const clients = Array.from(wss.clients).map(client => ({
+  const clients = Array.from(wss.clients as any).map((client: any) => ({
     readyState: client.readyState === WebSocket.OPEN ? 'open' : 
                 client.readyState === WebSocket.CONNECTING ? 'connecting' :
                 client.readyState === WebSocket.CLOSING ? 'closing' : 'closed'
@@ -233,7 +233,7 @@ app.get('/api/websocket/clients', (req, res) => {
   
   res.json({
     totalConnections: wss.clients.size,
-    openConnections: clients.filter(c => c.readyState === 'open').length,
+    openConnections: clients.filter((c: any) => c.readyState === 'open').length,
     clients: clients
   });
 });
