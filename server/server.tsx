@@ -9,6 +9,9 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
 
+const app = express();
+const port = process.env.PORT || 3001;
+
 app.use(cors({
   origin: 'https://dashboard-new-eta-blond.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -20,8 +23,6 @@ app.use(express.json());
 // Load environment variables
 dotenv.config();
 
-const app = express();
-const port = process.env.PORT || 3001;
 
 // Create HTTP server from Express app
 console.log('🔍 Environment variables check:');
