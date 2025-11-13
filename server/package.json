@@ -7,31 +7,38 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "seed": "tsx src/seed.ts"
   },
   "engines": {
     "node": "18.x"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",
+    "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.0",
-    "express": "^4.18.2",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
     "express-async-handler": "^1.2.0",
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
-    "mongoose": "^8.0.3",
+    "mongodb": "^6.21.0",
+    "mongoose": "^8.19.3",
     "morgan": "^1.10.1",
+    "winston": "^3.18.3",
     "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.25",
-    "@types/node": "^20.19.23",
+    "@types/mongodb": "^4.0.6",
+    "@types/node": "^20.19.25",
+    "@types/nodemailer": "^7.0.3",
+    "@types/winston": "^2.4.4",
     "tsx": "^4.0.0",
     "typescript": "^5.3.3"
   }

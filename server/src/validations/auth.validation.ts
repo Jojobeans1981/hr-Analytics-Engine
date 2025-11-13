@@ -1,13 +1,17 @@
-import Joi from 'joi';
+import { Request } from 'express';
 
-export const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().min(6).required()
-});
+export interface AuthData {
+  email: string;
+  password: string;
+}
 
-export const registerSchema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().min(6).required(),
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required()
-});
+export const validateAuth = (data: any): string | null => {
+  if (!data.email) return 'Email is required';
+  if (!data.password) return 'Password is required';
+  if (!/\S+@\S+\.\S+/.test(data.email)) return 'Valid email is required';
+  return null;
+};
+
+export const validateAuthRequest = (req: Request): string | null => {
+  return validateAuth(req.body);
+};

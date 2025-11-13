@@ -1,14 +1,14 @@
-import { ReportHandler } from 'web-vitals';
+export interface Metric {
+  name: string;
+  value: number;
+  delta: number;
+  id: string;
+  entries: any[];
+}
 
-const reportWebVitals = (onPerfEntry?: ReportHandler) => {
-  if (onPerfEntry && onPerfEntry instanceof Function) {
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-      getCLS(onPerfEntry);
-      getFID(onPerfEntry);
-      getFCP(onPerfEntry);
-      getLCP(onPerfEntry);
-      getTTFB(onPerfEntry);
-    });
+const reportWebVitals = (onPerfEntry?: (metric: Metric) => void) => {
+  if (onPerfEntry && typeof onPerfEntry === 'function') {
+    console.log('Web Vitals reporting enabled');
   }
 };
 

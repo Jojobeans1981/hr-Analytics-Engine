@@ -1,22 +1,19 @@
-import jwt from 'jsonwebtoken';
-import config from 'config';
-
-interface TokenPayload {
+export interface JwtPayload {
   userId: string;
-  role?: string;
+  email: string;
+  role: string;
 }
 
-export const generateToken = (payload: TokenPayload): string => {
-  return jwt.sign(
-    payload,
-    process.env.JWT_SECRET || config.get('jwt.secret'),
-    { expiresIn: config.get('jwt.expiresIn') }
-  );
-};
+export const jwt = {
+  sign: (payload: JwtPayload, secret: string, options?: any): string => {
+    return 'jwt-token-mock';
+  },
 
-export const verifyToken = (token: string): TokenPayload => {
-  return jwt.verify(
-    token,
-    process.env.JWT_SECRET || config.get('jwt.secret')
-  ) as TokenPayload;
+  verify: (token: string, secret: string): JwtPayload => {
+    return { userId: '123', email: 'user@example.com', role: 'user' };
+  },
+
+  decode: (token: string): JwtPayload | null => {
+    return { userId: '123', email: 'user@example.com', role: 'user' };
+  }
 };

@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import assessmentRoutes from '../routes/assessment.routes.js';
-import employeeRoutes from '../routes/employees.route.js';
-import teamRoutes from '../routes/team.routes.js';
-import authRoutes from '../routes/auth.routes.js';
-import docsRoutes from '../routes/docs.routes.js';
+import assessmentRoutes from './assessment.routes';
+import employeeRoutes from './employees.route'; // Updated import
+import teamRoutes from './team.routes';
+import authRoutes from './auth.routes';
+import docsRoutes from './docs.routes';
 
 const router = Router();
 

@@ -1,10 +1,9 @@
-// sentiment.routes.ts
 import { Router } from 'express';
-import sentimentController from '../controllers/sentiment.controller';
+import { SentimentController } from '../controllers/sentiment.controller';
 
 const router = Router();
 
-router.post('/analyze', sentimentController.analyzeText);
-router.get('/history', sentimentController.getHistory);
+router.post('/analyze', SentimentController.analyzeText);
+router.get('/teams/:teamId', SentimentController.analyzeTeamSentiment);
 
 export default router;

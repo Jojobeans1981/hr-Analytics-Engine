@@ -1,16 +1,20 @@
-import Joi from 'joi';
+import { Request } from 'express';
 
-export const teamQuerySchema = Joi.object({
-  department: Joi.string(),
-  status: Joi.string().valid('active', 'inactive'),
-  minRisk: Joi.number().min(0).max(100),
-  maxRisk: Joi.number().min(0).max(100)
-});
+export interface TeamData {
+  name: string;
+  description?: string;
+  managerId?: string;
+  memberIds?: string[];
+  department?: string;
+}
 
-export const teamCreateSchema = Joi.object({
-  name: Joi.string().required(),
-  department: Joi.string().required(),
-  managerId: Joi.string().hex().length(24).required(),
-  memberIds: Joi.array().items(Joi.string().hex().length(24)).required(),
-  status: Joi.string().valid('active', 'inactive').default('active')
-});
+export const validateTeam = (data: any): string | null => {
+  if (!data.name?.trim()) return 'Team name is required';
+  if (data.name.length < 2) return 'Team name must be at least 2 characters';
+  if (data.name.length > 50) return 'Team name must be less than 50 characters';
+  return null;
+};
+
+export const validateTeamRequest = (req: Request): string | null => {
+  return validateTeam(req.body);
+};

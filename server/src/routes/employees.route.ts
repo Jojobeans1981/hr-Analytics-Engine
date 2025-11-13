@@ -1,79 +1,96 @@
-import { Router } from "express";
-import { Employee } from "../models/employee.model.js";
+import { Router, Request, Response } from 'express';
+import { EmployeeService } from '../services/employee.service';
 
 const router = Router();
-router.get("/", async (_req, res) => {
+const employeeService = new EmployeeService();
+
+// Get all employees with risk assessment
+router.get('/', async (req: Request, res: Response) => {
   try {
-    const employees = await Employee.find();
-    res.json({ success: true, employees });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
-// Summary route (for dashboard metrics)
-router.get("/summary", async (_req, res) => {
-  try {
-    const totalEmployees = await Employee.countDocuments();
-
-    const avgRiskResult = await Employee.aggregate([
-      { $group: { _id: null, avgRisk: { $avg: "$riskScore" } } },
-    ]);
-    const avgRisk =
-      avgRiskResult.length > 0
-        ? Number(avgRiskResult[0].avgRisk.toFixed(2))
-        : 0;
-
-    // Employees per department
-    const departmentCounts = await Employee.aggregate([
-      { $group: { _id: "$department", count: { $sum: 1 } } },
-      { $sort: { _id: 1 } },
-    ]);
-
-    // Risk levels distribution (derived in aggregation too)
-    const riskDistribution = await Employee.aggregate([
-      {
-        $group: {
-          _id: {
-            $switch: {
-              branches: [
-                { case: { $lt: ["$riskScore", 0.4] }, then: "Low" },
-                {
-                  case: {
-                    $and: [
-                      { $gte: ["$riskScore", 0.4] },
-                      { $lt: ["$riskScore", 0.7] },
-                    ],
-                  },
-                  then: "Medium",
-                },
-                { case: { $gte: ["$riskScore", 0.7] }, then: "High" },
-              ],
-              default: "Unknown",
-            },
-          },
-          count: { $sum: 1 },
-        },
-      },
-    ]);
-
+    const employees = await employeeService.getEmployeesWithRisk();
+    
     res.json({
       success: true,
-      totalEmployees,
-      avgRisk,
-      departments: departmentCounts.reduce((acc, d) => {
-        acc[d._id] = d.count;
-        return acc;
-      }, {} as Record<string, number>),
-      riskLevels: riskDistribution.reduce((acc, d) => {
-        acc[d._id] = d.count;
-        return acc;
-      }, {} as Record<string, number>),
+      data: employees,
+      count: employees.length,
+      riskBreakdown: await employeeService.getRiskBreakdown()
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Server error" });
+  } catch (error) {
+    console.error('Error in getEmployees:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch employees with risk assessment'
+    });
   }
 });
+
+// Get high-risk employees
+router.get('/high-risk', async (req: Request, res: Response) => {
+  try {
+    const threshold = parseInt(req.query.threshold as string) || 70;
+    const highRiskEmployees = await employeeService.getHighRiskEmployees(threshold);
+    
+    res.json({
+      success: true,
+      data: highRiskEmployees,
+      count: highRiskEmployees.length,
+      threshold
+    });
+  } catch (error) {
+    console.error('Error in getHighRiskEmployees:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch high-risk employees'
+    });
+  }
+});
+
+// Get risk breakdown
+router.get('/risk-breakdown', async (req: Request, res: Response) => {
+  try {
+    const breakdown = await employeeService.getRiskBreakdown();
+    
+    res.json({
+      success: true,
+      data: breakdown
+    });
+  } catch (error) {
+    console.error('Error in getRiskBreakdown:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch risk breakdown'
+    });
+  }
+});
+
+// Get employee by ID with detailed risk assessment
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const employees = await employeeService.getEmployeesWithRisk();
+    const employee = employees.find(emp => 
+      emp.id === req.params.id || 
+      emp._id.toString() === req.params.id
+    
+    );
+    
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        error: 'Employee not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: employee
+    });
+  } catch (error) {
+    console.error('Error in getEmployeeById:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch employee'
+    });
+  }
+});
+
 export default router;

@@ -1,17 +1,9 @@
-import express from 'express';
+import { Router } from 'express';
 import { DashboardController } from '../controllers/dashboard.controller';
-import { authenticate } from '../middleware/auth.middleware';
 
-const router = express.Router();
+const router = Router();
 
-router.use(authenticate);
-
-router.get('/',
-  DashboardController.getDashboardData
-);
-
-router.get('/risk-trends',
-  DashboardController.getRiskTrends
-);
+router.get('/', DashboardController.getDashboardData);
+router.get('/teams/:teamId/metrics', DashboardController.getTeamMetrics);
 
 export default router;

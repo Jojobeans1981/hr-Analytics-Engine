@@ -1,51 +1,44 @@
-import sgMail from '@sendgrid/mail';
-
-if (!process.env.SENDGRID_API_KEY) {
-  throw new Error('SENDGRID_API_KEY is not defined');
-}
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-type EmailOptions = {
-  to: string;
-  subject: string;
-  text: string;
-  html: string;
-};
+import nodemailer from 'nodemailer';
 
 export class EmailService {
-  static async sendWelcomeEmail(email: string, name: string): Promise<void> {
-    try {
-      const msg: EmailOptions = {
-        to: email,
-        from: process.env.EMAIL_FROM || 'no-reply@talentplatform.com',
-        subject: 'Welcome to Talent Platform',
-        text: `Hi ${name}, welcome to our platform!`,
-        html: `<strong>Hi ${name}, welcome to our platform!</strong>`
-      };
+  private static transporter = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'test@example.com',
+      pass: 'testpassword'
+    }
+  });
 
-      await sgMail.send(msg);
+  static async sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+    try {
+      const info = await this.transporter.sendMail({
+        from: '"Talent Risk AI" <noreply@talentrisk.ai>',
+        to,
+        subject,
+        html
+      });
+      console.log('Email sent:', info.messageId);
+      return true;
     } catch (error) {
-      console.error('Failed to send welcome email:', error);
-      throw new Error('Failed to send welcome email');
+      console.error('Email sending error:', error);
+      return false;
     }
   }
 
-  static async sendRiskAlertEmail(email: string, name: string, riskLevel: string): Promise<void> {
-    try {
-      const msg: EmailOptions = {
-        to: email,
-        from: process.env.EMAIL_FROM || 'no-reply@talentplatform.com',
-        subject: `Risk Alert: ${riskLevel} risk detected`,
-        text: `Hi ${name}, we've detected ${riskLevel} risk level in your team.`,
-        html: `<p>Hi ${name},</p>
-               <p>We've detected <strong>${riskLevel}</strong> risk level in your team.</p>`
-      };
+  static async sendWelcomeEmail(to: string, name: string): Promise<boolean> {
+    const html = `<h1>Welcome to Talent Risk AI, ${name}!</h1><p>Your account has been created.</p>`;
+    return this.sendEmail(to, 'Welcome to Talent Risk AI', html);
+  }
 
-      await sgMail.send(msg);
-    } catch (error) {
-      console.error('Failed to send risk alert email:', error);
-      throw new Error('Failed to send risk alert email');
-    }
+  static async sendNotification(to: string, message: string): Promise<boolean> {
+    const html = `<h2>Notification</h2><p>${message}</p>`;
+    return this.sendEmail(to, 'Notification', html);
+  }
+
+  static async sendRiskAlert(to: string, teamName: string, riskLevel: string): Promise<boolean> {
+    const html = `<h2>Risk Alert</h2><p>Team <strong>${teamName}</strong> has <strong>${riskLevel.toUpperCase()}</strong> risk.</p>`;
+    return this.sendEmail(to, `Risk Alert: ${teamName}`, html);
   }
 }

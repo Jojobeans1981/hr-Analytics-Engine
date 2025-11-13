@@ -1,6 +1,21 @@
-export * from './ApiResponse.dto';
-export * from './assessment.dto';
-export * from './auth.dto';
-export * from './common.dto';
-export * from './team.dto';
-export * from './user.dto';
+export interface UserDto {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export interface TeamDto {
+  id: string;
+  name: string;
+  description: string;
+  managerId?: string;
+  memberIds: string[];
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}

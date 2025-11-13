@@ -1,73 +1,73 @@
-// seed.ts
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import { Employee } from "./models/employee.model.js"; // adjust path if needed
+import mongoose from 'mongoose';
 
-dotenv.config();
+const MONGODB_URI = 'mongodb+srv://beamers051681:Wookie2011@Prometheus.inv2hx4.mongodb.net/Prometheus?retryWrites=true&w=majority';
 
-const MONGO_URI = process.env.MONGODB_URI || "";
-// Explicitly set your DB name (to match API) — lowercase recommended
-const DB_NAME = process.env.MONGO_DB_NAME || "Prometheus";
+const newEmployees = [
+  {
+    name: "Sarah Chen",
+    email: "sarah.chen@company.com",
+    department: "Engineering",
+    role: "Senior Developer",
+    riskScore: 0.25,
+    riskLevel: "Low",
+    skills: ["JavaScript", "React", "Node.js", "TypeScript"],
+    tenure: 3.5,
+    performanceScore: 4.8,
+    lastPromotion: "2023-06-15",
+    engagementScore: 4.5
+  },
+  {
+    name: "Marcus Rodriguez",
+    email: "marcus.rodriguez@company.com",
+    department: "Sales", 
+    role: "Sales Manager",
+    riskScore: 0.65,
+    riskLevel: "Medium",
+    skills: ["Negotiation", "CRM", "Client Relations"],
+    tenure: 1.2,
+    performanceScore: 3.2,
+    lastPromotion: "2022-11-20",
+    engagementScore: 3.0
+  },
+  // ... include all the other employees from previous example
+];
 
-async function seed() {
+async function seedDatabase() {
   try {
-    console.log("⏳ Connecting to MongoDB...");
-    await mongoose.connect(MONGO_URI, { dbName: DB_NAME });
+    await mongoose.connect(MONGODB_URI);
+    console.log('✅ Connected to MongoDB');
 
-    console.log("✅ Connected to MongoDB:", mongoose.connection.db.databaseName);
+    const db = mongoose.connection.db;
+    
+    // Check which employees already exist
+    const existingEmails = await db.collection('employees')
+      .find({}, { projection: { email: 1 } })
+      .toArray()
+      .then(employees => employees.map(emp => emp.email));
+    
+    // Only add employees that don't already exist
+    const employeesToAdd = newEmployees.filter(emp => 
+      !existingEmails.includes(emp.email)
+    );
 
-    // Clear existing employees (optional, ensure unique emails)
-    await Employee.deleteMany({});
-    console.log("🧹 Cleared existing employees collection");
+    if (employeesToAdd.length > 0) {
+      await db.collection('employees').insertMany(employeesToAdd);
+      console.log(`✅ Added ${employeesToAdd.length} new employees`);
+      console.log('📧 New emails added:', employeesToAdd.map(emp => emp.email));
+    } else {
+      console.log('✅ All seed employees already exist in database');
+    }
 
-    // Insert sample employees
-    const employees = [
-      {
-        name: "Alice Johnson",
-        role: "Software Engineer",
-        email: "alice.johnson@example.com",
-        department: "Engineering",
-        riskScore: 0.25,
-      },
-      {
-        name: "Bob Smith",
-        role: "Marketing Manager",
-        email: "bob.smith@example.com",
-        department: "Marketing",
-        riskScore: 0.5,
-      },
-      {
-        name: "Charlie Brown",
-        role: "HR Specialist",
-        email: "charlie.brown@example.com",
-        department: "HR",
-        riskScore: 0.35,
-      },
-      {
-        name: "Diana Prince",
-        role: "Financial Analyst",
-        email: "diana.prince@example.com",
-        department: "Finance",
-        riskScore: 0.72,
-      },
-      {
-        name: "Ethan Hunt",
-        role: "DevOps Engineer",
-        email: "ethan.hunt@example.com",
-        department: "Engineering",
-        riskScore: 0.85,
-      },
-    ];
+    // Get total count
+    const totalEmployees = await db.collection('employees').countDocuments();
+    console.log(`📊 Total employees in database: ${totalEmployees}`);
 
-    await Employee.insertMany(employees);
-    console.log("🌱 Seeded employees:", employees.length);
-
-    await mongoose.disconnect();
-    console.log("🔌 Disconnected from MongoDB");
-  } catch (err) {
-    console.error("❌ Seed error:", err);
+    console.log('🎉 Seed completed successfully!');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Seeding failed:', error);
     process.exit(1);
   }
 }
 
-seed();
+seedDatabase();

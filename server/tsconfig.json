@@ -9,23 +9,15 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "jsx": "react-jsx"
   },
   "include": [
-    "src/index.ts"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "src/app.ts",
-    "src/controllers/**/*",
-    "src/routes/**/*", 
-    "src/services/**/*",
-    "src/utils/**/*",
-    "src/models/**/*",
-    "src/middleware/**/*",
-    "src/dtos/**/*",
-    "src/scripts/**/*",
     "**/*.test.ts",
     "**/*.test.tsx"
   ]
