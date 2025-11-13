@@ -12,10 +12,21 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src/**/*"
+    "src/index.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "src/app.ts",
+    "src/controllers/**/*",
+    "src/routes/**/*", 
+    "src/services/**/*",
+    "src/utils/**/*",
+    "src/models/**/*",
+    "src/middleware/**/*",
+    "src/dtos/**/*",
+    "src/scripts/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }

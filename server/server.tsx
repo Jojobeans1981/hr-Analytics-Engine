@@ -17,7 +17,9 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 // Create HTTP server from Express app
-
+console.log('🔍 Environment variables check:');
+console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
+console.log('All env vars:', Object.keys(process.env));
 
 const server = http.createServer(app);
 mongoose.connect(process.env.MONGODB_URI!)
