@@ -54,7 +54,8 @@ app.use('/api/', limiter);
 // CORS configuration
 const allowedOrigins = process.env.NODE_ENV === 'production' 
   ? [
-      'https://your-frontend-app.vercel.app', // Your Vercel frontend
+      'https://your-frontend-app.vercel.app',
+      'https://dashboard-new-eta-blond.vercel.app', // Your Vercel frontend
       'http://localhost:3000',
       'http://localhost:5173'
     ]
