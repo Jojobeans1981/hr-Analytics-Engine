@@ -52,6 +52,8 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [
       'https://dashboard-gfjo6f4rg-joseph-panettas-projects.vercel.app',
       'https://dashboard-nuxjrvijx-joseph-panettas-projects.vercel.app', 
+      'https://dashboard-ir8f523jh-joseph-panettas-projects.vercel.app', // ← ADD THIS NEW URL
+
 
       'http://localhost:3000',
       'http://localhost:5173'
