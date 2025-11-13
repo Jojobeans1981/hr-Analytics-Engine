@@ -9,6 +9,13 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
 
+app.use(cors({
+  origin: 'https://dashboard-new-eta-blond.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+}));
+
+app.use(express.json());
 
 // Load environment variables
 dotenv.config();
