@@ -4,7 +4,7 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": "./src",
     "strict": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -12,13 +12,10 @@
     "resolveJsonModule": true
   },
   "include": [
-    "server.tsx",
-    "websocket.server.js"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "src/**/*",
-    "app.ts"
+    "dist"
   ]
 }

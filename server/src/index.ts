@@ -2,21 +2,28 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
-import WebSocket from 'ws';
 import mongoose from 'mongoose';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
-// Load environment variables
-dotenv.config();
+// Only load dotenv in development
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 const app = express();
 const port = process.env.PORT || 3001;
 
+// Fix trust proxy for rate limiting
+app.set('trust proxy', 1);
+
 // Create HTTP server from Express app
 const server = http.createServer(app);
+
+// Use require for WebSocket to avoid type issues
+const WebSocket = require('ws');
 
 // Create WebSocket server attached to the same server
 const wss = new WebSocket.Server({ 
@@ -43,7 +50,7 @@ app.use('/api/', limiter);
 // CORS configuration
 const allowedOrigins = process.env.NODE_ENV === 'production' 
   ? [
-      'https://your-frontend-app.vercel.app', // Your Vercel frontend
+      'https://dashboard-gfjo6f4rg-joseph-panettas-projects.vercel.app',
       'http://localhost:3000',
       'http://localhost:5173'
     ]
@@ -77,20 +84,23 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('combined'));
 }
 
-// MongoDB connection (if you're using MongoDB)
-const connectDB = async (): Promise<void> => {
+// MongoDB connection - fixed timing issue
+const connectDB = async () => {
   try {
-    if (process.env.MONGODB_URI) {
-      const conn = await mongoose.connect(process.env.MONGODB_URI);
-      console.log(`MongoDB Connected: ${conn.connection.host}`);
-    } else {
-      console.log('No MongoDB URI provided, running without database');
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI is not defined in environment');
     }
+    
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('✅ MongoDB Connected successfully');
   } catch (error) {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
+    console.log('❌ MongoDB connection failed:', error);
+    // Don't exit the process, just log the error
   }
 };
+
+// Call this function after your app setup
+connectDB();
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -127,7 +137,7 @@ app.get('/', (req, res) => {
 });
 
 // WebSocket connection handler
-wss.on('connection', (ws, request) => {
+wss.on('connection', (ws: any, request) => {
   console.log('🔌 New WebSocket client connected');
   console.log(`📍 Total connections: ${wss.clients.size}`);
   
@@ -215,8 +225,8 @@ wss.on('connection', (ws, request) => {
 });
 
 // Broadcast function to send to all clients except sender
-function broadcastToAll(message: string, excludeWs?: WebSocket) {
-  wss.clients.forEach((client) => {
+function broadcastToAll(message: string, excludeWs?: any) {
+  wss.clients.forEach((client: any) => {
     if (client !== excludeWs && client.readyState === WebSocket.OPEN) {
       client.send(message);
     }
@@ -225,7 +235,7 @@ function broadcastToAll(message: string, excludeWs?: WebSocket) {
 
 // Get all connected clients (useful for admin)
 app.get('/api/websocket/clients', (req, res) => {
-  const clients = Array.from(wss.clients).map(client => ({
+  const clients = Array.from(wss.clients as any).map((client: any) => ({
     readyState: client.readyState === WebSocket.OPEN ? 'open' : 
                 client.readyState === WebSocket.CONNECTING ? 'connecting' :
                 client.readyState === WebSocket.CLOSING ? 'closing' : 'closed'
@@ -233,7 +243,7 @@ app.get('/api/websocket/clients', (req, res) => {
   
   res.json({
     totalConnections: wss.clients.size,
-    openConnections: clients.filter(c => c.readyState === 'open').length,
+    openConnections: clients.filter((c: any) => c.readyState === 'open').length,
     clients: clients
   });
 });
@@ -264,11 +274,6 @@ app.use('*', (req, res) => {
 // Start server
 const startServer = async (): Promise<void> => {
   try {
-    // Connect to database if MongoDB URI is provided
-    if (process.env.MONGODB_URI) {
-      await connectDB();
-    }
-    
     server.listen(port, () => {
       console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${port}`);
       console.log(`📍 HTTP API: http://localhost:${port}`);

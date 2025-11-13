@@ -4,9 +4,9 @@
   "description": "Backend server for talent risk assessment platform",
   "type": "commonjs",
   "scripts": {
-    "dev": "tsx watch server.tsx",
+    "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/index.js",
     "heroku-postbuild": "npm run build"
   },
   "engines": {
@@ -28,7 +28,6 @@
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "@types/ws": "^8.18.1",
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.25",
