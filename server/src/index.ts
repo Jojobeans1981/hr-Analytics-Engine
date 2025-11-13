@@ -51,6 +51,8 @@ app.use('/api/', limiter);
 const allowedOrigins = process.env.NODE_ENV === 'production' 
   ? [
       'https://dashboard-gfjo6f4rg-joseph-panettas-projects.vercel.app',
+      'https://dashboard-nuxjrvijx-joseph-panettas-projects.vercel.app', 
+
       'http://localhost:3000',
       'http://localhost:5173'
     ]
