@@ -22,6 +22,8 @@ console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
 console.log('All env vars:', Object.keys(process.env));
 
 const server = http.createServer(app);
+
+const MONGODB_URI = 'mongodb+srv://beamers051681:Wookie2011@Prometheus.inv2hx4.mongodb.net/Prometheus?retryWrites=true&w=majority';
 mongoose.connect(process.env.MONGODB_URI!)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch(err => console.log('❌ MongoDB connection error:', err));
