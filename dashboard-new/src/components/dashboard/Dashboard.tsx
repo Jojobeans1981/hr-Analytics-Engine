@@ -27,7 +27,6 @@ import WarningIcon from "@mui/icons-material/Warning";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 
-
 import {
   PieChart,
   Pie,
@@ -53,8 +52,11 @@ interface Employee {
   name: string;
   email: string;
   department: string;
-  riskScore: number;
+  riskScore: number; // 0-100 percentage
+  risk?: number; // Backward compatibility (0-1 scale)
   riskLevel: "Low" | "Medium" | "High";
+  riskFactors?: any;
+  riskTrend?: 'improving' | 'deteriorating' | 'stable';
 }
 
 interface Summary {
@@ -98,6 +100,58 @@ const RISK_COLORS = {
   High: "#F44336"
 };
 
+// Helper function to format risk score properly
+const formatRiskScore = (employee: Employee): number => {
+  // If riskScore exists (0-100), use it directly
+  if (employee.riskScore !== undefined && employee.riskScore !== null) {
+    return employee.riskScore;
+  }
+  // If only risk exists (0-1), convert to percentage
+  if (employee.risk !== undefined && employee.risk !== null) {
+    return employee.risk * 100;
+  }
+  // Default fallback
+  return 0;
+};
+
+// Helper function to determine risk level
+const getRiskLevel = (score: number): "Low" | "Medium" | "High" => {
+  if (score >= 70) return "High";
+  if (score >= 30) return "Medium";
+  return "Low";
+};
+
+// Risk Score Display Component
+const RiskScoreDisplay: React.FC<{ employee: Employee }> = ({ employee }) => {
+  const score = formatRiskScore(employee);
+  const riskLevel = getRiskLevel(score);
+  
+  return (
+    <Box display="flex" alignItems="center" gap={1}>
+      <Typography 
+        variant="body2" 
+        fontWeight="bold"
+        style={{ 
+          color: RISK_COLORS[riskLevel],
+          minWidth: '40px'
+        }}
+      >
+        {Math.round(score)}%
+      </Typography>
+      <Chip
+        label={riskLevel}
+        size="small"
+        style={{
+          backgroundColor: RISK_COLORS[riskLevel],
+          color: 'white',
+          fontWeight: 'bold'
+        }}
+      />
+      {score > 70 && <WarningIcon style={{ color: RISK_COLORS.High, fontSize: 16 }} />}
+    </Box>
+  );
+};
+
 const Dashboard: React.FC = () => {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -116,7 +170,12 @@ const Dashboard: React.FC = () => {
       summary,
       employees,
       hasSummary: !!summary,
-      hasEmployees: !!employees
+      hasEmployees: !!employees,
+      sampleEmployee: employees[0] ? {
+        ...employees[0],
+        formattedScore: formatRiskScore(employees[0]),
+        riskLevel: getRiskLevel(formatRiskScore(employees[0]))
+      } : null
     });
   }, [summary, employees]);
 
@@ -203,7 +262,7 @@ const Dashboard: React.FC = () => {
         setEmployees(prev => prev ? prev.map(emp =>
           emp._id === message.data._id ? { ...emp, ...message.data } : emp
         ) : [message.data]);
-        addAlert('warning', `Employee Risk Updated`, `${message.data.name} risk score changed to ${message.data.riskScore}`);
+        addAlert('warning', `Employee Risk Updated`, `${message.data.name} risk score changed to ${formatRiskScore(message.data)}%`);
         break;
 
       case 'employee_added':
@@ -290,7 +349,15 @@ const Dashboard: React.FC = () => {
         });
         
         setSummary(summaryData);
-        setEmployees(employeesData || []);
+        
+        // Process employees to ensure proper risk score formatting
+        const processedEmployees = (employeesData || []).map((emp: any) => ({
+          ...emp,
+          // Ensure riskLevel is calculated based on the actual score
+          riskLevel: getRiskLevel(formatRiskScore(emp))
+        }));
+        
+        setEmployees(processedEmployees);
       } catch (error) {
         console.error('❌ API Error:', error);
         addAlert('error', 'Initialization Error', 'Failed to load dashboard data');
@@ -328,7 +395,7 @@ const Dashboard: React.FC = () => {
       emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       emp.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDept = deptFilter ? emp.department === deptFilter : true;
-    const matchesRisk = riskFilter ? emp.riskLevel === riskFilter : true;
+    const matchesRisk = riskFilter ? getRiskLevel(formatRiskScore(emp)) === riskFilter : true;
     return matchesSearch && matchesDept && matchesRisk;
   });
 
@@ -452,7 +519,7 @@ const Dashboard: React.FC = () => {
               </Box>
               <Box display="flex" alignItems="center" gap={1}>
                 <Typography variant="h4">
-                  {(summary?.avgRisk ?? 0).toFixed(1)}
+                  {Math.round(summary.avgRisk)}%
                 </Typography>
                 {riskTrend === 'up' ? <TrendingUpIcon color="error" /> : <TrendingDownIcon color="success" />}
               </Box>
@@ -487,7 +554,7 @@ const Dashboard: React.FC = () => {
                 <ApartmentIcon style={{ color: "#00C49F" }} />
                 <Typography variant="h6">Departments</Typography>
               </Box>
-<Typography variant="h4">{summary?.departments?.length ?? 0}</Typography>
+              <Typography variant="h4">{summary?.departments?.length ?? 0}</Typography>
               <Typography variant="caption" color="textSecondary">
                 Active departments
               </Typography>
@@ -725,19 +792,17 @@ const Dashboard: React.FC = () => {
                       <td style={{ padding: '12px', border: '1px solid #e0e0e0' }}>{emp.department}</td>
                       <td style={{ padding: '12px', border: '1px solid #e0e0e0' }}>
                         <Chip
-                          label={emp.riskLevel}
+                          label={getRiskLevel(formatRiskScore(emp))}
                           size="small"
                           style={{
-                            backgroundColor: RISK_COLORS[emp.riskLevel],
-                            color: 'white'
+                            backgroundColor: RISK_COLORS[getRiskLevel(formatRiskScore(emp))],
+                            color: 'white',
+                            fontWeight: 'bold'
                           }}
                         />
                       </td>
                       <td style={{ padding: '12px', border: '1px solid #e0e0e0' }}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <Typography>{emp.riskScore}</Typography>
-                          {emp.riskScore > 70 && <WarningIcon style={{ color: RISK_COLORS.High, fontSize: 16 }} />}
-                        </Box>
+                        <RiskScoreDisplay employee={emp} />
                       </td>
                     </tr>
                   ))

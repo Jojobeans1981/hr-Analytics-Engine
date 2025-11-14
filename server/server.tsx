@@ -254,8 +254,7 @@ function broadcastToAll(message: string, excludeWs?: WebSocket) {
   });
 }
 
-// Get all connected clients (useful for admin)
-// Get all connected clients (useful for admin)
+// Endpoint to get WebSocket clients info
 app.get('/api/websocket/clients', (req, res) => {
   const clients = Array.from(wss.clients as any).map((client: any) => ({
     readyState: client.readyState === WebSocket.OPEN ? 'open' : 
