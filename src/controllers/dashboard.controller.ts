@@ -11,8 +11,8 @@ export class DashboardController {
         recentActivity: []
       };
       res.json({ success: true, data });
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('Failed to get dashboard data:', error);
       res.status(500).json({ success: false, error: 'Failed to get dashboard data' });
-    }
-  }
+    }  }
 }

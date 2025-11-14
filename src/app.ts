@@ -9,8 +9,10 @@ const app = express();
 
 // Middleware
 app.use(helmet());
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:3000',
+  credentials: true
+}));app.use(express.json());
 
 // Basic health check route
 app.get('/health', (req: express.Request, res: express.Response) => {
