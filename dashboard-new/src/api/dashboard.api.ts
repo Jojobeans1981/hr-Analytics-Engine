@@ -1,8 +1,7 @@
-// In your dashboard.api.ts or similar file
-const API_BASE = 'https://prometheus-talent-engine-production.up.railway.app/api';
+const RAILWAY_BASE = 'https://prometheus-talent-engine-production.up.railway.app';
 
 export const fetchEmployees = async () => {
-  const response = await fetch('/api/employees');
+  const response = await fetch(`${RAILWAY_BASE}/api/employees`); // Direct to Railway
   if (!response.ok) {
     throw new Error(`Failed to fetch employees: ${response.status}`);
   }
@@ -10,7 +9,7 @@ export const fetchEmployees = async () => {
 };
 
 export const fetchDashboardMetrics = async () => {
-  const response = await fetch('/api/dashboard-metrics');
+  const response = await fetch(`${RAILWAY_BASE}/api/dashboard-metrics`); // Direct to Railway
   if (!response.ok) {
     throw new Error(`Failed to fetch metrics: ${response.status}`);
   }
