@@ -11,18 +11,32 @@ import mongoose from 'mongoose';
 const app = express();
 const port = process.env.PORT || 3001;
 
+// CORS configuration
+const allowedOrigins = [
+  'https://dashboard-new-eta-blond.vercel.app', // Your Vercel frontend
+  'http://localhost:3000',
+  'http://localhost:5173'
+];
+
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.log(`❌ Blocked by CORS: ${origin}`);
+      console.log('Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
+// Handle preflight requests explicitly
+app.options('*', cors());
 
 app.use(express.json());
 
@@ -68,38 +82,32 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use('/api/', limiter);
+// Add this before CORS
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`, {
+    origin: req.headers.origin,
+    'user-agent': req.headers['user-agent']
+  });
+  next();
+});
 
-// CORS configuration
-const allowedOrigins = process.env.NODE_ENV === 'production' 
-  ? [
-      'https://dashboard-new-eta-blond.vercel.app', // Your actual Vercel frontend
-      'https://your-frontend-app.vercel.app', // Remove or replace this
-      'http://localhost:3000',
-      'http://localhost:5173'
-    ]
-  : [
-      'http://localhost:3000',
-      'http://localhost:5173'
-    ];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('Blocked by CORS:', origin); // Add logging
-      callback(null, true); // Temporarily allow all for debugging
-      // callback(new Error('Not allowed by CORS'));
-    }
-  },
+// Simple CORS first
+app.use(cors());
+const corsOptions = {
+  origin: [
+    'https://dashboard-new-eta-blond.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:5173'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+};
 
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -162,7 +170,7 @@ app.get('/', (req, res) => {
 });
 
 // WebSocket connection handler
-wss.on('connection', (ws, request) => {
+wss.on('connection', (ws: WebSocket.WebSocket, request: http.IncomingMessage) => {
   console.log('🔌 New WebSocket client connected');
   console.log(`📍 Total connections: ${wss.clients.size}`);
   
@@ -180,7 +188,7 @@ wss.on('connection', (ws, request) => {
   }));
   
   // Handle messages from client
-  ws.on('message', (data) => {
+  ws.on('message', (data: Buffer) => {
     try {
       const message = data.toString();
       console.log('📨 Received message:', message);
