@@ -1,28 +1,18 @@
-const API_BASE_URL = 'https://prometheus-talent-engine-production.up.railway.app/api';
+// In your dashboard.api.ts or similar file
+const API_BASE = 'https://prometheus-talent-engine-production.up.railway.app/api';
 
-export async function getDashboardMetrics() {
-  const res = await fetch(`${API_BASE_URL}/dashboard-metrics`, {
-    headers: {
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache'
-    }
-  });
-  if (!res.ok) {
-    throw new Error('Failed to fetch dashboard metrics');
+export const fetchEmployees = async () => {
+  const response = await fetch('/api/employees');
+  if (!response.ok) {
+    throw new Error(`Failed to fetch employees: ${response.status}`);
   }
-  return res.json();
-}
+  return response.json();
+};
 
-export async function getEmployees() {
-  const res = await fetch(`${API_BASE_URL}/employees`, {
-    headers: {
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache'
-    }
-  });
-  if (!res.ok) {
-    throw new Error('Failed to fetch employees');
+export const fetchDashboardMetrics = async () => {
+  const response = await fetch('/api/dashboard-metrics');
+  if (!response.ok) {
+    throw new Error(`Failed to fetch metrics: ${response.status}`);
   }
-  const data = await res.json();
-  return data.employees || [];
-}
+  return response.json();
+};
