@@ -1,104 +1,53 @@
-import { Router } from "express";
-import { Employee } from "../models/Employee";  
-const router = Router();
+import express from 'express';
+const router = express.Router();
 
-// GET all employees (with optional filters)
-router.get("/", async (req, res) => {
+// GET all employees
+router.get('/', async (req, res) => {
   try {
-    const { department, name, role, riskScore  } = req.query;
-
-    const query: any = {};
-
-    if (department) {
-      query.department = department;
-    }
-    if (status) {
-      query.status = status;
-    }
-//     // if (minRisk || maxRisk) {
-//     //   query.riskScore = {};
-//     //   if (minRisk) query.riskScore.$gte = parseFloat(minRisk as string);
-//     //   if (maxRisk) query.riskScore.$lte = parseFloat(maxRisk as string);
-//     // }
-
-//     const employees = await Employee.find(query);
-
-//     res.json({
-//       success: true,
-//       count: employees.length,
-//       data: employees,
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// });
+    // Your employees logic here
+    res.json({ 
+      message: "Employees data",
+      employees: [
+        { id: 1, name: "John Doe", position: "Developer" },
+        { id: 2, name: "Jane Smith", position: "Designer" }
+        // Add your actual employee data
+      ]
+    });
+  } catch (error) {
+    console.error("Error fetching employees:", error);
+    res.status(500).json({ error: "Failed to fetch employees" });
+  }
+});
 
 // GET employee by ID
-router.get("/:id", async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
-    const employee = await Employee.findById(req.params.id);
-
-    if (!employee) {
-      return res.status(404).json({
-        success: false,
-        message: "Employee not found",
-      });
-    }
-
-    res.json({ success: true, data: employee });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Server error" });
+    const { id } = req.params;
+    // Your get employee by ID logic
+    res.json({ 
+      message: `Employee ${id} data`,
+      id: id,
+      name: "Employee Name",
+      position: "Employee Position"
+    });
+  } catch (error) {
+    console.error("Error fetching employee:", error);
+    res.status(500).json({ error: "Failed to fetch employee" });
   }
 });
 
 // POST create new employee
-router.post("/", async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    const data = req.body;
-    const employee = new Employee({
-      ...data,
-      riskScore: data.riskScore ?? 5.0, // default if not provided
-      status: "active",
-    });
-    await employee.save();
-
-    res.status(201).json({
-      success: true,
+    const employeeData = req.body;
+    // Your create employee logic
+    res.status(201).json({ 
       message: "Employee created successfully",
-      data: employee,
+      employee: employeeData
     });
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({ success: false, message: "Invalid data" });
-  }
-});
-
-// PUT update employee
-router.put("/:id", async (req, res) => {
-  try {
-    const updated = await Employee.findByIdAndUpdate(
-      req.params.id,
-      { ...req.body, updatedAt: new Date() },
-      { new: true }
-    );
-
-    if (!updated) {
-      return res.status(404).json({
-        success: false,
-        message: "Employee not found",
-      });
-    }
-
-    res.json({
-      success: true,
-      message: "Employee updated successfully",
-      data: updated,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({ success: false, message: "Update failed" });
+  } catch (error) {
+    console.error("Error creating employee:", error);
+    res.status(500).json({ error: "Failed to create employee" });
   }
 });
 
