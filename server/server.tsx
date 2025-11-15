@@ -2,13 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
-const WebSocket = require('ws');
+import WebSocket from 'ws';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
-
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -73,8 +72,8 @@ app.use('/api/', limiter);
 // CORS configuration
 const allowedOrigins = process.env.NODE_ENV === 'production' 
   ? [
-      'https://your-frontend-app.vercel.app',
-      'https://dashboard-new-eta-blond.vercel.app', // Your Vercel frontend
+      'https://dashboard-new-eta-blond.vercel.app', // Your actual Vercel frontend
+      'https://your-frontend-app.vercel.app', // Remove or replace this
       'http://localhost:3000',
       'http://localhost:5173'
     ]
@@ -91,11 +90,16 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.log('Blocked by CORS:', origin); // Add logging
+      callback(null, true); // Temporarily allow all for debugging
+      // callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
