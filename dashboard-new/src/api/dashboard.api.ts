@@ -1,17 +1,28 @@
-const RAILWAY_BASE = 'https://prometheus-talent-engine-production.up.railway.app';
+const API_BASE_URL = 'https://prometheus-talent-engine-production.up.railway.app/api';
 
-export const fetchEmployees = async () => {
-  const response = await fetch(`${RAILWAY_BASE}/api/employees`); // Direct to Railway
-  if (!response.ok) {
-    throw new Error(`Failed to fetch employees: ${response.status}`);
+export async function getDashboardMetrics() {
+  const res = await fetch(`${API_BASE_URL}/dashboard-metrics`, {
+    headers: {
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    }
+  });
+  if (!res.ok) {
+    throw new Error('Failed to fetch dashboard metrics');
   }
-  return response.json();
-};
+  return res.json();
+}
 
-export const fetchDashboardMetrics = async () => {
-  const response = await fetch(`${RAILWAY_BASE}/api/dashboard-metrics`); // Direct to Railway
-  if (!response.ok) {
-    throw new Error(`Failed to fetch metrics: ${response.status}`);
+export async function getEmployees() {
+  const res = await fetch(`${API_BASE_URL}/employees`, {
+    headers: {
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    }
+  });
+  if (!res.ok) {
+    throw new Error('Failed to fetch employees');
   }
-  return response.json();
-};
+  const data = await res.json();
+  return data.employees || [];
+}
