@@ -39,7 +39,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes - CRITICAL FIX: departments as ARRAY
+// API routes - COMPLETE data structure for frontend
 app.get('/api/employees', (req, res) => {
   const employees = [
     { 
@@ -48,7 +48,8 @@ app.get('/api/employees', (req, res) => {
       position: 'Developer',
       riskLevel: 'Low',
       department: 'Engineering',
-      riskScore: 25
+      riskScore: 25,
+      status: 'active'
     },
     { 
       id: 2, 
@@ -56,7 +57,8 @@ app.get('/api/employees', (req, res) => {
       position: 'Designer',
       riskLevel: 'Medium', 
       department: 'Design',
-      riskScore: 65
+      riskScore: 65,
+      status: 'active'
     }
   ];
   res.json(employees);
@@ -67,16 +69,24 @@ app.get('/api/dashboard-metrics', (req, res) => {
     totalEmployees: 2,
     activeProjects: 5,
     riskScore: 3.2,
+    // COMPLETE riskLevel object with all properties
     riskLevel: {
       Low: 1,
       Medium: 1,
       High: 0,
       Critical: 0
     },
-    // ⚠️ CRITICAL FIX: This MUST be an ARRAY, not object
-    departments: ['Engineering', 'Design'], // ARRAY for .map() to work
+    // departments as ARRAY (fixed)
+    departments: ['Engineering', 'Design'],
+    // Additional properties frontend might expect
     alerts: [],
-    notifications: []
+    notifications: [],
+    recentActivities: [],
+    summary: {
+      total: 2,
+      active: 2,
+      atRisk: 0
+    }
   };
   res.json(metrics);
 });
