@@ -1,64 +1,87 @@
-import * as express from "express";
-import mongoose from "mongoose";
-import * as dotenv from "dotenv";
-import cors from "cors";
-import employeesRouter from "./routes/employee.routes";
-
-dotenv.config();
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
 
 const app = express();
+const server = createServer(app);
 
-// CORS configuration for specific frontend domains
+const wss = new WebSocketServer({ 
+  server,
+  perMessageDeflate: false
+});
+
+wss.on('connection', (ws, request) => {
+  console.log('í´Œ New WebSocket client connected');
+  ws.send(JSON.stringify({
+    type: 'connected',
+    message: 'WebSocket connection established',
+    timestamp: new Date().toISOString()
+  }));
+});
+
+// Express Middleware
+app.use(helmet());
 app.use(cors({
-  origin: [
-    'https://dashboard-new-eta-blond.vercel.app', // Your Vercel frontend
-    'http://localhost:3000', // Local development
-    'http://localhost:5173'  // Vite development
-  ],
+  origin: true,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['*']
 }));
-
 app.use(express.json());
-app.use("/api/employees", employeesRouter);
 
-// Demo route
-app.get("/", (_req, res) => {
-  res.json({ message: "ðŸš€ Talent Risk API running with ESM + TSX" });
-});
-
-// Dashboard metrics route
-app.get("/api/dashboard-metrics", async (req, res) => {
-  try {
-    // Your dashboard metrics logic here
-    res.json({ 
-      message: "Dashboard metrics data",
-      totalEmployees: 150,
-      activeProjects: 12,
-      riskScore: 7.2
-      // Add your actual metrics data
-    });
-  } catch (error) {
-    console.error("Error fetching dashboard metrics:", error);
-    res.status(500).json({ error: "Failed to fetch dashboard metrics" });
-  }
-});
-
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGODB_URI || "";
-
-// MongoDB connection
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log("âœ… Connected to MongoDB");
-    console.log("ðŸ“Œ Connected DB Name:", mongoose.connection.db?.databaseName);
-    app.listen(PORT, () => {
-      console.log(`ðŸš€ Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("âŒ MongoDB connection error", err);
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString()
   });
+});
 
-export default app;
+// API routes - CRITICAL FIX: departments as ARRAY
+app.get('/api/employees', (req, res) => {
+  const employees = [
+    { 
+      id: 1, 
+      name: 'John Doe', 
+      position: 'Developer',
+      riskLevel: 'Low',
+      department: 'Engineering',
+      riskScore: 25
+    },
+    { 
+      id: 2, 
+      name: 'Jane Smith', 
+      position: 'Designer',
+      riskLevel: 'Medium', 
+      department: 'Design',
+      riskScore: 65
+    }
+  ];
+  res.json(employees);
+});
+
+app.get('/api/dashboard-metrics', (req, res) => {
+  const metrics = {
+    totalEmployees: 2,
+    activeProjects: 5,
+    riskScore: 3.2,
+    riskLevel: {
+      Low: 1,
+      Medium: 1,
+      High: 0,
+      Critical: 0
+    },
+    // âš ï¸ CRITICAL FIX: This MUST be an ARRAY, not object
+    departments: ['Engineering', 'Design'], // ARRAY for .map() to work
+    alerts: [],
+    notifications: []
+  };
+  res.json(metrics);
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`íº€ Server running on port ${PORT}`);
+});
