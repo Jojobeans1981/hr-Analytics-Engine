@@ -39,7 +39,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes - COMPLETE data structure for frontend
+// API routes - MATCH FRONTEND EXPECTATIONS
 app.get('/api/employees', (req, res) => {
   const employees = [
     { 
@@ -69,24 +69,30 @@ app.get('/api/dashboard-metrics', (req, res) => {
     totalEmployees: 2,
     activeProjects: 5,
     riskScore: 3.2,
-    // COMPLETE riskLevel object with all properties
+    avgRisk: 45, // Frontend expects this for riskTrend calculation
+    
+    // ⚠️ CRITICAL FIX: Frontend expects 'riskLevels' (with 's'), not 'riskLevel'
+    riskLevels: {
+      Low: 1,
+      Medium: 1, 
+      High: 0,
+      Critical: 0
+    },
+    
+    // Also keep the singular for compatibility
     riskLevel: {
       Low: 1,
       Medium: 1,
       High: 0,
       Critical: 0
     },
-    // departments as ARRAY (fixed)
+    
+    // departments as ARRAY (already fixed)
     departments: ['Engineering', 'Design'],
-    // Additional properties frontend might expect
+    
+    // Additional data
     alerts: [],
-    notifications: [],
-    recentActivities: [],
-    summary: {
-      total: 2,
-      active: 2,
-      atRisk: 0
-    }
+    notifications: []
   };
   res.json(metrics);
 });
