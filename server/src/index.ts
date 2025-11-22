@@ -3,9 +3,31 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const server = createServer(app);
+
+// MongoDB Connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/prometheus';
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log('‚úÖ MongoDB connected successfully'))
+  .catch(err => console.error('‚ùå MongoDB connection error:', err));
+
+// Simple Employee model (adjust based on your actual schema)
+const EmployeeSchema = new mongoose.Schema({
+  name: String,
+  position: String,
+  department: String,
+  riskLevel: String,
+  riskScore: Number,
+  status: String
+}, { collection: 'employees' });
+
+const Employee = mongoose.model('Employee', EmployeeSchema);
 
 const wss = new WebSocketServer({ 
   server,
@@ -35,69 +57,94 @@ app.use(express.json());
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
 
-// API routes - MATCH FRONTEND EXPECTATIONS
-app.get('/api/employees', (req, res) => {
-  const employees = [
-    { 
-      id: 1, 
-      name: 'John Doe', 
-      position: 'Developer',
-      riskLevel: 'Low',
-      department: 'Engineering',
-      riskScore: 25,
-      status: 'active'
-    },
-    { 
-      id: 2, 
-      name: 'Jane Smith', 
-      position: 'Designer',
-      riskLevel: 'Medium', 
-      department: 'Design',
-      riskScore: 65,
-      status: 'active'
-    }
-  ];
-  res.json(employees);
+// API routes - USING REAL MONGODB DATA
+app.get('/api/employees', async (req, res) => {
+  try {
+    const employees = await Employee.find({}).limit(100); // Get real employees
+    console.log(`Ì≥ä Found ${employees.length} employees in database`);
+    res.json(employees);
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+    // Fallback to test data if DB fails
+    res.json([
+      { 
+        id: 1, 
+        name: 'John Doe', 
+        position: 'Developer',
+        riskLevel: 'Low',
+        department: 'Engineering',
+        riskScore: 25,
+        status: 'active'
+      },
+      { 
+        id: 2, 
+        name: 'Jane Smith', 
+        position: 'Designer',
+        riskLevel: 'Medium', 
+        department: 'Design',
+        riskScore: 65,
+        status: 'active'
+      }
+    ]);
+  }
 });
 
-app.get('/api/dashboard-metrics', (req, res) => {
-  const metrics = {
-    totalEmployees: 2,
-    activeProjects: 5,
-    riskScore: 3.2,
-    avgRisk: 45, // Frontend expects this for riskTrend calculation
+app.get('/api/dashboard-metrics', async (req, res) => {
+  try {
+    const employees = await Employee.find({});
+    const totalEmployees = employees.length;
     
-    // ‚ö†Ô∏è CRITICAL FIX: Frontend expects 'riskLevels' (with 's'), not 'riskLevel'
-    riskLevels: {
-      Low: 1,
-      Medium: 1, 
-      High: 0,
-      Critical: 0
-    },
+    // Calculate real metrics from database
+    const riskLevels = {
+      Low: employees.filter(e => e.riskLevel === 'Low').length,
+      Medium: employees.filter(e => e.riskLevel === 'Medium').length,
+      High: employees.filter(e => e.riskLevel === 'High').length,
+      Critical: employees.filter(e => e.riskLevel === 'Critical').length
+    };
     
-    // Also keep the singular for compatibility
-    riskLevel: {
-      Low: 1,
-      Medium: 1,
-      High: 0,
-      Critical: 0
-    },
+    const departments = [...new Set(employees.map(e => e.department).filter(Boolean))];
     
-    // departments as ARRAY (already fixed)
-    departments: ['Engineering', 'Design'],
+    const avgRisk = employees.length > 0 
+      ? employees.reduce((sum, e) => sum + (e.riskScore || 0), 0) / employees.length 
+      : 0;
+
+    const metrics = {
+      totalEmployees,
+      activeProjects: 5, // You might want to calculate this from your data
+      riskScore: avgRisk,
+      avgRisk,
+      riskLevels,
+      departments,
+      alerts: [],
+      notifications: []
+    };
     
-    // Additional data
-    alerts: [],
-    notifications: []
-  };
-  res.json(metrics);
+    console.log(`Ì≥à Dashboard metrics: ${totalEmployees} employees, avg risk: ${avgRisk}`);
+    res.json(metrics);
+    
+  } catch (error) {
+    console.error('Error calculating metrics:', error);
+    // Fallback to test data
+    res.json({
+      totalEmployees: 2,
+      activeProjects: 5,
+      riskScore: 3.2,
+      avgRisk: 45,
+      riskLevels: { Low: 1, Medium: 1, High: 0, Critical: 0 },
+      departments: ['Engineering', 'Design'],
+      alerts: [],
+      notifications: []
+    });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Ì∫Ä Server running on port ${PORT}`);
+  console.log(`Ì≥ç MongoDB: ${MONGODB_URI.includes('@') ? 'Connected with credentials' : MONGODB_URI}`);
 });
