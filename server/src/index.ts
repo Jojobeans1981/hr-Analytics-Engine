@@ -1,13 +1,17 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { corsOptions } from './middleware/security.middleware.js';
 
 const app = express();
 
-// Middleware
+// CORS configuration - ALLOW EVERYTHING TEMPORARILY
 app.use(helmet());
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: true, // Allow all origins
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['*'] // Allow ALL headers
+}));
 app.use(express.json());
 
 // Health check endpoint
@@ -45,7 +49,7 @@ app.get('/api/dashboard-metrics', (req, res) => {
 });
 
 // Handle preflight requests
-app.options('*', cors(corsOptions));
+app.options('*', cors());
 
 const PORT = process.env.PORT || 3000;
 
