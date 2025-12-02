@@ -55,10 +55,7 @@ console.log('All env vars:', Object.keys(process.env));
 
 const server = http.createServer(app);
 
-const MONGODB_URI = 'mongodb+srv://beamers051681:Wookie2011@Prometheus.inv2hx4.mongodb.net/Prometheus?retryWrites=true&w=majority';
-mongoose.connect(process.env.MONGODB_URI!)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.log('❌ MongoDB connection error:', err));
+
 
 
 // Create WebSocket server attached to the same server
@@ -170,7 +167,7 @@ app.get('/', (req, res) => {
 });
 
 // WebSocket connection handler
-wss.on('connection', (ws: WebSocket.WebSocket, request: http.IncomingMessage) => {
+wss.on('connection', (ws: WebSocket, request: http.IncomingMessage) => {
   console.log('🔌 New WebSocket client connected');
   console.log(`📍 Total connections: ${wss.clients.size}`);
   
@@ -259,7 +256,7 @@ wss.on('connection', (ws: WebSocket.WebSocket, request: http.IncomingMessage) =>
 
 // Broadcast function to send to all clients except sender
 function broadcastToAll(message: string, excludeWs?: WebSocket) {
-  wss.clients.forEach((client) => {
+  wss.clients.forEach((client: WebSocket) => {
     if (client !== excludeWs && client.readyState === WebSocket.OPEN) {
       client.send(message);
     }
