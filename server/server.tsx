@@ -2,12 +2,16 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
-import WebSocket from 'ws';
+import WebSocket, { Server as WebSocketServer } from 'ws';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
+import riskRoutes from './src/routes/risk.routes';
+import employeesRoutes from './src/routes/employees.route';
+import dashboardRoutes from './src/routes/dashboard.routes';
+
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -59,7 +63,7 @@ const server = http.createServer(app);
 
 
 // Create WebSocket server attached to the same server
-const wss = new WebSocket.Server({ 
+const wss = new WebSocketServer({ 
   server,
   perMessageDeflate: false
 });
@@ -151,7 +155,9 @@ app.get('/api/data', (req, res) => {
     environment: process.env.NODE_ENV
   });
 });
-
+// API Routes
+app.use('/api/risk/employees', employeesRoutes);
+app.use('/api/risk', riskRoutes);
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
@@ -161,6 +167,9 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/api/health',
       data: '/api/data',
+      risk: '/api/risk/*',
+      employees: '/api/employees',
+      dashboard: '/api/dashboard',
       websocket: `ws://localhost:${port}`
     }
   });
@@ -286,6 +295,9 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     error: process.env.NODE_ENV === 'production' ? {} : err.message
   });
 });
+app.use('/api/risk', riskRoutes);
+app.use('/api/employees', employeesRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

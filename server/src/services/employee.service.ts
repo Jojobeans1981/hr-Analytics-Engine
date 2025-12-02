@@ -255,54 +255,23 @@ export class EmployeeService {
   }
 
   // Private helper methods
-  private async fetchEmployees(): Promise<Employee[]> {
-    try {
-      // TODO: Replace with your actual MongoDB query
-      // return await db.collection('employees').find().toArray();
-      
-      // Mock data for 152 employees - replace with your actual data
-      return this.generateMockEmployees(152);
-    } catch (error) {
-      console.error('Error fetching employees:', error);
-      return [];
-    }
+ private async fetchEmployees(): Promise<Employee[]> {
+  try {
+    // Import the Employee model
+    const { Employee: EmployeeModel } = await import('../models/employee.model');
+    
+    // Query MongoDB for all employees
+    const employees = await EmployeeModel.find().lean();
+    
+    console.log(`📊 Fetched ${employees.length} employees from MongoDB`);
+    
+    return employees as any as Employee[];
+  } catch (error) {
+    console.error('Error fetching employees from MongoDB:', error);
+    return [];
   }
-
-  private generateMockEmployees(count: number): Employee[] {
-    const departments = ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Product', 'Design', 'Operations'];
-    const positions = [
-      'Software Engineer', 'Senior Developer', 'Product Manager', 'Sales Representative',
-      'Marketing Specialist', 'HR Manager', 'Financial Analyst', 'UX Designer'
-    ];
-    
-    const employees: Employee[] = [];
-    
-    for (let i = 1; i <= count; i++) {
-      const department = departments[Math.floor(Math.random() * departments.length)];
-      const position = positions[Math.floor(Math.random() * positions.length)];
-      
-      employees.push({
-        _id: new ObjectId(),
-        id: `EMP${i.toString().padStart(4, '0')}`,
-        name: `Employee ${i}`,
-        email: `employee${i}@company.com`,
-        department,
-        position,
-        performanceRating: Number((Math.random() * 2 + 3).toFixed(1)), // 3.0 - 5.0
-        tenure: Math.floor(Math.random() * 60) + 1, // 1-60 months
-        engagementScore: Number((Math.random() * 0.5 + 0.5).toFixed(2)), // 0.5 - 1.0
-        compRatio: Number((Math.random() * 0.6 + 0.7).toFixed(2)), // 0.7 - 1.3
-        criticalSkills: ['JavaScript', 'React', 'Node.js', 'TypeScript'].slice(0, Math.floor(Math.random() * 4) + 1),
-        skillGaps: Math.random() > 0.7 ? ['AWS', 'Docker'] : [],
-        hireDate: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000 * 2), // Within last 2 years
-        lastReviewDate: new Date(Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000), // Within last 6 months
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-    }
-    
-    return employees;
-  }
+}
+ 
 
   // Static helper methods
   private static shouldRecalculateRisk(updateData: Partial<Employee>): boolean {
