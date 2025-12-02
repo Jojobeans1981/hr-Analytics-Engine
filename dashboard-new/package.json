@@ -1,8 +1,9 @@
 {
   "name": "talent-risk-ai",
   "version": "0.1.0",
-   "proxy": "http://localhost:5000",
+  "proxy": "http://localhost:5000",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
@@ -19,8 +20,8 @@
     "web-vitals": "^2.1.4",
     "ws": "^8.14.2"
   },
- "scripts": {
-   "build": "CI=false react-scripts build",
+  "scripts": {
+    "build": "CI=false react-scripts build",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx --quiet",
     "start": "react-scripts start",
     "eject": "react-scripts eject"
@@ -39,8 +40,9 @@
   },
   "devDependencies": {
     "@types/axios": "^0.9.36",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@types/ws": "^8.5.10"
+    "@types/react": "^19.2.6",
+    "@types/react-dom": "^19.2.3",
+    "@types/ws": "^8.5.10",
+    "typescript": "^5.9.3"
   }
 }
