@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Five Rappers of All Time</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #f5f5f5;
+            background-color: #111;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), 
+                              url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            padding-bottom: 40px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            background: linear-gradient(to bottom, rgba(20, 20, 20, 1), rgba(20, 20, 20, 0.8));
+            border-bottom: 3px solid #ff5500;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: #ff5500;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 3px 3px 0 #000;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.4rem;
+            color: #ddd;
+            margin-bottom: 25px;
+            font-weight: 300;
+        }
+        
+        .intro-text {
+            max-width: 900px;
+            margin: 0 auto 30px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #ccc;
+            padding: 20px;
+            background-color: rgba(30, 30, 30, 0.8);
+            border-radius: 8px;
+            border-left: 4px solid #ff5500;
+        }
+        
+        .rapper-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .rapper-card {
+            display: flex;
+            background-color: rgba(30, 30, 30, 0.85);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #333;
+        }
+        
+        .rapper-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.7);
+            border-color: #ff5500;
+        }
+        
+        .rapper-img {
+            flex: 0 0 300px;
+            height: 300px;
+            overflow: hidden;
+        }
+        
+        .rapper-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .rapper-card:hover .rapper-img img {
+            transform: scale(1.05);
+        }
+        
+        .rapper-content {
+            flex: 1;
+            padding: 25px 30px;
+        }
+        
+        .rapper-number {
+            display: inline-block;
+            background-color: #ff5500;
+            color: #000;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+        
+        .rapper-name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.2rem;
+            color: #fff;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        
+        .rapper-description {
+            font-size: 1.05rem;
+            color: #ccc;
+            line-height: 1.7;
+        }
+        
+        .disclaimer {
+            text-align: center;
+            color: #ff9900;
+            font-size: 1.2rem;
+            margin: 30px 0;
+            font-family: 'Oswald', sans-serif;
+            letter-spacing: 1px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #888;
+            font-size: 0.9rem;
+            border-top: 1px solid #333;
+        }
+        
+        .hiphop-icon {
+            color: #ff5500;
+            margin: 0 5px;
+        }
+        
+        @media (max-width: 900px) {
+            .rapper-card {
+                flex-direction: column;
+            }
+            
+            .rapper-img {
+                flex: 0 0 250px;
+                height: 250px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .rapper-name {
+                font-size: 1.8rem;
+            }
+            
+            .rapper-img {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>TOP FIVE DEAD OR ALIVE</h1>
+        <div class="subtitle">My Top Five Rappers of All Time</div>
+    </header>
+    
+    <main>
+        <div class="rapper-container">
+            <div class="intro-text">
+                When hip-hop fans debate the "Top Five Dead or Alive," the conversation can go on forever. But no list feels complete without these five lyrical giants—artists whose skill, influence, and cultural impact helped define the very DNA of rap. From golden-era pioneers to poetic revolutionaries, here's why Big Daddy Kane, KRS-One, Redman, Nas, and Tupac remain immortal in the culture.
+            </div>
+            
+            <div class="disclaimer">
+                <i class="fas fa-microphone-alt hiphop-icon"></i>
+                Not listed in any particular order
+                <i class="fas fa-volume-up hiphop-icon"></i>
+            </div>
+            
+            <!-- Big Daddy Kane -->
+            <div class="rapper-card">
+                <div class="rapper-img">
+                    <img src="https://images.unsplash.com/photo-1519281682544-5f37c4b14c47?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Big Daddy Kane">
+                </div>
+                <div class="rapper-content">
+                    <div class="rapper-number">1</div>
+                    <h2 class="rapper-name">Big Daddy Kane</h2>
+                    <p class="rapper-description">Smooth yet sharp, Big Daddy Kane is the foundation. His rapid-fire flow, effortless swagger, and innovative wordplay set a new standard for MCs in the late '80s. Kane didn't just rap—he crafted a style that echoed through generations, influencing everyone from Jay-Z to Eminem. With timeless classics like "Ain't No Half-Steppin'" and "Smooth Operator," he remains a cornerstone of hip-hop's golden era.</p>
+                </div>
+            </div>
+            
+            <!-- KRS-One -->
+            <div class="rapper-card">
+                <div class="rapper-img">
+                    <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="KRS-One">
+                </div>
+                <div class="rapper-content">
+                    <div class="rapper-number">2</div>
+                    <h2 class="rapper-name">KRS-One</h2>
+                    <p class="rapper-description">The "Teacha" of hip-hop, KRS-One is more than just an MC; he's a philosopher and activist. With a career spanning decades, his socially conscious lyrics and powerful delivery have inspired countless artists to use their voices for change. From "Sound of da Police" to "My Philosophy," KRS-One's influence is felt not just in music but in the very ethos of hip-hop culture, championing knowledge and self-awareness.</p>
+                </div>
+            </div>
+            
+            <!-- Redman -->
+            <div class="rapper-card">
+                <div class="rapper-img">
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Redman">
+                </div>
+                <div class="rapper-content">
+                    <div class="rapper-number">3</div>
+                    <h2 class="rapper-name">Redman</h2>
+                    <p class="rapper-description">The Funk Doctor himself, Redman brings a unique blend of humor, charisma, and raw talent to the table. His inventive wordplay and infectious energy have made him a beloved figure in hip-hop. From "How High" to "Time 4 Sum Aksion," Redman's ability to balance street credibility with playful lyricism sets him apart as one of the genre's most versatile artists, delivering gritty narratives with a comedic edge.</p>
+                </div>
+            </div>
+            
+            <!-- Nas -->
+            <div class="rapper-card">
+                <div class="rapper-img">
+                    <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Nas">
+                </div>
+                <div class="rapper-content">
+                    <div class="rapper-number">4</div>
+                    <h2 class="rapper-name">Nas</h2>
+                    <p class="rapper-description">The God of New York, Nas is a master storyteller whose intricate wordplay and vivid imagery paint pictures of life in the inner city. His introspective lyrics and flawless delivery have earned him a place among hip-hop's most respected lyricists. With the landmark album "Illmatic" and decades of consistent excellence, Nas' ability to evolve while staying true to his roots cements his legendary status.</p>
+                </div>
+            </div>
+            
+            <!-- Tupac -->
+            <div class="rapper-card">
+                <div class="rapper-img">
+                    <img src="https://images.unsplash.com/photo-1589409514186-3503f4d5d5c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Tupac">
+                </div>
+                <div class="rapper-content">
+                    <div class="rapper-number">5</div>
+                    <h2 class="rapper-name">Tupac Shakur</h2>
+                    <p class="rapper-description">The late Tupac Shakur, known as 2Pac, was a powerful voice for social justice and personal expression. His raw emotion, deep introspection, and fearless honesty in his lyrics made him one of the most influential rappers in hip-hop history. From "Dear Mama" to "Changes," Pac's ability to articulate the struggles of urban life while expressing vulnerability and rage created a lasting legacy that continues to inspire.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>Hip-Hop Legends • Top Five Dead or Alive • Tribute to the Culture</p>
+        <p><i class="fas fa-headphones-alt hiphop-icon"></i> The music lives on forever <i class="fas fa-record-vinyl hiphop-icon"></i></p>
+    </footer>
+</body>
+</html>

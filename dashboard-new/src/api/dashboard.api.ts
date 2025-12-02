@@ -20,12 +20,21 @@ export async function getEmployees() {
       'Pragma': 'no-cache'
     }
   });
+
   if (!res.ok) {
     throw new Error('Failed to fetch employees');
   }
-  return res.json(); 
-}
 
+  const data = await res.json();
+
+  // Backend returns a raw array; wrap it so the rest of the app
+  // can safely use data.employees.
+  if (Array.isArray(data)) {
+    return { employees: data };
+  }
+
+  return data; // if you later change the API to return an object
+}
 
 export async function getHighRiskAlerts() {
   const res = await fetch(`${API_BASE_URL}/risk/alerts/high-risk`, {
