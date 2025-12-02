@@ -1,5 +1,5 @@
 import express from 'express';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
 import WebSocket, { Server as WebSocketServer } from 'ws';
@@ -12,66 +12,63 @@ import riskRoutes from './src/routes/risk.routes';
 import employeesRoutes from './src/routes/employees.route';
 import dashboardRoutes from './src/routes/dashboard.routes';
 
+dotenv.config();
+
 const app = express();
 const port = process.env.PORT || 3001;
 
-// CORS configuration
+// ---------- CORS (single, clean config) ----------
 const allowedOrigins = [
-  'https://dashboard-new-eta-blond.vercel.app', // Your Vercel frontend
+  'https://dashboard-new-eta-blond.vercel.app', // Vercel frontend
   'http://localhost:3000',
-  'http://localhost:5173'
+  'http://localhost:5173',
 ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+const corsOptions: CorsOptions = {
+  origin(origin, callback) {
+    // Allow requests with no origin (curl, Postman, server-to-server)
     if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('Blocked by CORS:', origin);
-      callback(new Error('Not allowed by CORS'));
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
+
+    console.log('Blocked by CORS:', origin);
+    // Do NOT throw; just deny CORS
+    return callback(null, false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+};
 
-// Handle preflight requests explicitly
-app.options('*', cors());
+// Apply CORS and preflight handling globally
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
-app.use(express.json());
+// Body parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-
-
-
-
-// Load environment variables
-dotenv.config();
-
-
-// Create HTTP server from Express app
+// ---------- Environment / server setup ----------
 console.log('🔍 Environment variables check:');
 console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
 console.log('All env vars:', Object.keys(process.env));
 
 const server = http.createServer(app);
 
-
-
-
-// Create WebSocket server attached to the same server
-const wss = new WebSocketServer({ 
+// ---------- WebSocket server ----------
+const wss = new WebSocketServer({
   server,
-  perMessageDeflate: false
+  perMessageDeflate: false,
 });
 
 // Security middleware
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
 
 // Compression middleware
 app.use(compression());
@@ -79,49 +76,28 @@ app.use(compression());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
+  max: 100,
+  message: 'Too many requests from this IP, please try again later.',
 });
 app.use('/api/', limiter);
-// Add this before CORS
+
+// Request logging (simple)
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`, {
     origin: req.headers.origin,
-    'user-agent': req.headers['user-agent']
+    'user-agent': req.headers['user-agent'],
   });
   next();
 });
 
-// Simple CORS first
-app.use(cors());
-const corsOptions = {
-  origin: [
-    'https://dashboard-new-eta-blond.vercel.app',
-    'http://localhost:3000',
-    'http://localhost:5173'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-};
-
-app.use(cors(corsOptions));
-
-// Handle preflight requests
-app.options('*', cors(corsOptions));
-
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Logging
+// HTTP logging (morgan)
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
   app.use(morgan('combined'));
 }
 
-// MongoDB connection (if you're using MongoDB)
+// ---------- MongoDB connection ----------
 const connectDB = async (): Promise<void> => {
   try {
     if (process.env.MONGODB_URI) {
@@ -136,6 +112,8 @@ const connectDB = async (): Promise<void> => {
   }
 };
 
+// ---------- HTTP routes ----------
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({
@@ -143,21 +121,25 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
     nodeVersion: process.version,
-    websocketConnections: wss.clients.size
+    websocketConnections: wss.clients.size,
   });
 });
 
-// Your existing API endpoint
+// Simple test endpoint
 app.get('/api/data', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'Hello from the backend!',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
+    environment: process.env.NODE_ENV,
   });
 });
+
 // API Routes
-app.use('/api/risk/employees', employeesRoutes);
+app.use('/api/risk/employees', employeesRoutes); // if you use nested route
 app.use('/api/risk', riskRoutes);
+app.use('/api/employees', employeesRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
@@ -170,100 +152,104 @@ app.get('/', (req, res) => {
       risk: '/api/risk/*',
       employees: '/api/employees',
       dashboard: '/api/dashboard',
-      websocket: `ws://localhost:${port}`
-    }
+      websocket: `ws://localhost:${port}`,
+    },
   });
 });
 
-// WebSocket connection handler
+// ---------- WebSocket handlers ----------
 wss.on('connection', (ws: WebSocket, request: http.IncomingMessage) => {
   console.log('🔌 New WebSocket client connected');
   console.log(`📍 Total connections: ${wss.clients.size}`);
-  
-  // Get client IP (useful for logging)
+
   const clientIP = request.socket.remoteAddress;
   console.log(`📍 Client IP: ${clientIP}`);
-  
-  // Send welcome message when client connects
-  ws.send(JSON.stringify({ 
-    type: 'welcome',
-    message: 'Connected to WebSocket server',
-    timestamp: new Date().toISOString(),
-    connectionId: Math.random().toString(36).substr(2, 9),
-    totalConnections: wss.clients.size
-  }));
-  
-  // Handle messages from client
+
+  ws.send(
+    JSON.stringify({
+      type: 'welcome',
+      message: 'Connected to WebSocket server',
+      timestamp: new Date().toISOString(),
+      connectionId: Math.random().toString(36).substr(2, 9),
+      totalConnections: wss.clients.size,
+    })
+  );
+
   ws.on('message', (data: Buffer) => {
     try {
       const message = data.toString();
       console.log('📨 Received message:', message);
-      
-      // Parse JSON if possible
-      let parsedMessage;
+
+      let parsedMessage: any;
       try {
         parsedMessage = JSON.parse(message);
       } catch {
         parsedMessage = { text: message };
       }
-      
-      // Echo back to client
-      ws.send(JSON.stringify({
-        type: 'echo',
-        originalMessage: parsedMessage,
-        timestamp: new Date().toISOString(),
-        server: 'Talent Risk API'
-      }));
-      
+
+      ws.send(
+        JSON.stringify({
+          type: 'echo',
+          originalMessage: parsedMessage,
+          timestamp: new Date().toISOString(),
+          server: 'Talent Risk API',
+        })
+      );
+
       // Broadcast to all other clients (optional)
-      broadcastToAll(JSON.stringify({
-        type: 'broadcast',
-        message: `User sent: ${typeof parsedMessage === 'object' ? JSON.stringify(parsedMessage) : parsedMessage}`,
-        timestamp: new Date().toISOString(),
-        connections: wss.clients.size
-      }), ws as any); // Exclude the sender
-      
+      broadcastToAll(
+        JSON.stringify({
+          type: 'broadcast',
+          message:
+            'User sent: ' +
+            (typeof parsedMessage === 'object'
+              ? JSON.stringify(parsedMessage)
+              : parsedMessage),
+          timestamp: new Date().toISOString(),
+          connections: wss.clients.size,
+        }),
+        ws as any // exclude sender
+      );
     } catch (error) {
       console.error('Error processing message:', error);
-      ws.send(JSON.stringify({
-        type: 'error',
-        message: 'Failed to process your message',
-        timestamp: new Date().toISOString()
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'error',
+          message: 'Failed to process your message',
+          timestamp: new Date().toISOString(),
+        })
+      );
     }
   });
-  
-  // Handle client disconnect
+
   ws.on('close', (code, reason) => {
     console.log('🔌 WebSocket client disconnected');
     console.log(`📍 Total connections: ${wss.clients.size}`);
     console.log(`📍 Close code: ${code}, Reason: ${reason}`);
   });
-  
-  // Handle errors
+
   ws.on('error', (error) => {
     console.error('WebSocket error:', error);
   });
-  
-  // Send periodic updates (optional)
+
   const interval = setInterval(() => {
     if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({
-        type: 'heartbeat',
-        timestamp: new Date().toISOString(),
-        connections: wss.clients.size,
-        uptime: process.uptime()
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'heartbeat',
+          timestamp: new Date().toISOString(),
+          connections: wss.clients.size,
+          uptime: process.uptime(),
+        })
+      );
     }
-  }, 30000); // Every 30 seconds
-  
-  // Clean up interval on close
+  }, 30000);
+
   ws.on('close', () => {
     clearInterval(interval);
   });
 });
 
-// Broadcast function to send to all clients except sender
 function broadcastToAll(message: string, excludeWs?: WebSocket) {
   wss.clients.forEach((client: WebSocket) => {
     if (client !== excludeWs && client.readyState === WebSocket.OPEN) {
@@ -275,31 +261,27 @@ function broadcastToAll(message: string, excludeWs?: WebSocket) {
 // Endpoint to get WebSocket clients info
 app.get('/api/websocket/clients', (req, res) => {
   const clients = Array.from(wss.clients as any).map((client: any) => ({
-    readyState: client.readyState === WebSocket.OPEN ? 'open' : 
-                client.readyState === WebSocket.CONNECTING ? 'connecting' :
-                client.readyState === WebSocket.CLOSING ? 'closing' : 'closed'
+    readyState:
+      client.readyState === WebSocket.OPEN
+        ? 'open'
+        : client.readyState === WebSocket.CONNECTING
+        ? 'connecting'
+        : client.readyState === WebSocket.CLOSING
+        ? 'closing'
+        : 'closed',
   }));
-  
+
   res.json({
     totalConnections: wss.clients.size,
-    openConnections: clients.filter((c: any) => c.readyState === 'open').length,
-    clients: clients
+    openConnections: clients.filter((c: any) => c.readyState === 'open')
+      .length,
+    clients,
   });
 });
 
-// Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'production' ? {} : err.message
-  });
-});
-app.use('/api/risk', riskRoutes);
-app.use('/api/employees', employeesRoutes);
-app.use('/api/dashboard', dashboardRoutes);
+// ---------- 404 + error handling ----------
 
-// 404 handler
+// 404 handler (must be after all routes)
 app.use('*', (req, res) => {
   res.status(404).json({
     message: 'Route not found',
@@ -308,25 +290,45 @@ app.use('*', (req, res) => {
       'GET /',
       'GET /api/health',
       'GET /api/data',
-      'GET /api/websocket/clients'
-    ]
+      'GET /api/websocket/clients',
+    ],
   });
 });
 
-// Start server
+// Error handling middleware (last)
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error(err.stack);
+    res.status(500).json({
+      message: 'Something went wrong!',
+      error: process.env.NODE_ENV === 'production' ? {} : err.message,
+    });
+  }
+);
+
+// ---------- Server start / shutdown ----------
+
 const startServer = async (): Promise<void> => {
   try {
-    // Connect to database if MongoDB URI is provided
     if (process.env.MONGODB_URI) {
       await connectDB();
     }
-    
+
     server.listen(port, () => {
-      console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${port}`);
+      console.log(
+        `🚀 Server running in ${process.env.NODE_ENV} mode on port ${port}`
+      );
       console.log(`📍 HTTP API: http://localhost:${port}`);
       console.log(`🔌 WebSocket: ws://localhost:${port}`);
       console.log(`❤️  Health check: http://localhost:${port}/api/health`);
-      console.log(`📊 WebSocket clients: http://localhost:${port}/api/websocket/clients`);
+      console.log(
+        `📊 WebSocket clients: http://localhost:${port}/api/websocket/clients`
+      );
     });
   } catch (error) {
     console.error('Failed to start server:', error);
@@ -334,7 +336,6 @@ const startServer = async (): Promise<void> => {
   }
 };
 
-// Handle graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
   server.close(() => {
