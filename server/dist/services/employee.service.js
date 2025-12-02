@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.employeeService = exports.EmployeeService = void 0;
 const mongodb_1 = require("mongodb");
@@ -200,46 +233,17 @@ class EmployeeService {
     // Private helper methods
     async fetchEmployees() {
         try {
-            // TODO: Replace with your actual MongoDB query
-            // return await db.collection('employees').find().toArray();
-            // Mock data for 152 employees - replace with your actual data
-            return this.generateMockEmployees(152);
+            // Import the Employee model
+            const { Employee: EmployeeModel } = await Promise.resolve().then(() => __importStar(require('../models/employee.model')));
+            // Query MongoDB for all employees
+            const employees = await EmployeeModel.find().lean();
+            console.log(`📊 Fetched ${employees.length} employees from MongoDB`);
+            return employees;
         }
         catch (error) {
-            console.error('Error fetching employees:', error);
+            console.error('Error fetching employees from MongoDB:', error);
             return [];
         }
-    }
-    generateMockEmployees(count) {
-        const departments = ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Product', 'Design', 'Operations'];
-        const positions = [
-            'Software Engineer', 'Senior Developer', 'Product Manager', 'Sales Representative',
-            'Marketing Specialist', 'HR Manager', 'Financial Analyst', 'UX Designer'
-        ];
-        const employees = [];
-        for (let i = 1; i <= count; i++) {
-            const department = departments[Math.floor(Math.random() * departments.length)];
-            const position = positions[Math.floor(Math.random() * positions.length)];
-            employees.push({
-                _id: new mongodb_1.ObjectId(),
-                id: `EMP${i.toString().padStart(4, '0')}`,
-                name: `Employee ${i}`,
-                email: `employee${i}@company.com`,
-                department,
-                position,
-                performanceRating: Number((Math.random() * 2 + 3).toFixed(1)), // 3.0 - 5.0
-                tenure: Math.floor(Math.random() * 60) + 1, // 1-60 months
-                engagementScore: Number((Math.random() * 0.5 + 0.5).toFixed(2)), // 0.5 - 1.0
-                compRatio: Number((Math.random() * 0.6 + 0.7).toFixed(2)), // 0.7 - 1.3
-                criticalSkills: ['JavaScript', 'React', 'Node.js', 'TypeScript'].slice(0, Math.floor(Math.random() * 4) + 1),
-                skillGaps: Math.random() > 0.7 ? ['AWS', 'Docker'] : [],
-                hireDate: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000 * 2), // Within last 2 years
-                lastReviewDate: new Date(Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000), // Within last 6 months
-                createdAt: new Date(),
-                updatedAt: new Date()
-            });
-        }
-        return employees;
     }
     // Static helper methods
     static shouldRecalculateRisk(updateData) {

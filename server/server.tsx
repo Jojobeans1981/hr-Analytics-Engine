@@ -58,7 +58,7 @@ console.log('All env vars:', Object.keys(process.env));
 const server = http.createServer(app);
 
 // ---------- WebSocket server ----------
-const wss = new WebSocketServer({
+const wss = new (WebSocket as any).Server({
   server,
   perMessageDeflate: false,
 });
