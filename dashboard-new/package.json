@@ -21,6 +21,12 @@
     "ws": "^8.14.2"
   },
   "scripts": {
+    "seed": "tsx seed-employees-dynamic.ts",
+    "seed:clear": "tsx seed-employees-dynamic.ts --clear",
+    "seed:50": "tsx seed-employees-dynamic.ts --count=50",
+    "seed:100": "tsx seed-employees-dynamic.ts --count=100",
+    "seed:simple": "tsx seed-employees-simple.ts",
+    "seed:simple:clear": "tsx seed-employees-simple.ts --clear",
     "build": "set DISABLE_ESLINT_PLUGIN=true&& set CI=false&& react-scripts build",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx --quiet",
     "start": "react-scripts start",
