@@ -10,10 +10,9 @@ class TalentRiskAssessor {
             compensation: this.calculateCompensationRisk(employee),
             skills: this.calculateSkillsRisk(employee)
         };
-        // Weighted risk calculation
         const weights = {
-            performance: 0.3,
-            tenure: 0.2,
+            performance: 0.35,
+            tenure: 0.15,
             engagement: 0.25,
             compensation: 0.15,
             skills: 0.1
@@ -21,11 +20,29 @@ class TalentRiskAssessor {
         const weightedScore = Object.keys(factors).reduce((total, key) => {
             return total + (factors[key] * weights[key]);
         }, 0);
+        const rawScore = weightedScore * 100;
+        const curvedScore = this.applyRiskCurve(rawScore);
+        const finalScore = Math.min(100, Math.max(0, curvedScore));
+        const level = this.getRiskLevel(finalScore);
         return {
-            score: Math.min(100, Math.max(0, weightedScore * 100)), // Convert to percentage (0-100%)
+            score: finalScore,
+            level,
             factors,
             trend: this.calculateRiskTrend(employee)
         };
+    }
+    applyRiskCurve(score) {
+        // Power curve to spread middle scores
+        const normalized = score / 100;
+        const curved = Math.pow(normalized, 1.3) * 100;
+        return curved;
+    }
+    getRiskLevel(score) {
+        if (score >= 70)
+            return 'high';
+        if (score >= 30)
+            return 'medium';
+        return 'low';
     }
     calculatePerformanceRisk(employee) {
         const rating = employee.performanceRating || employee.performance || 3;

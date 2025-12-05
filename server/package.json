@@ -8,7 +8,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "heroku-postbuild": "npm run build",
-     "seed": "npm run build && node dist/seedEmployees.js"
+   "seed": "npm run build && node dist/seedEmployees.js"
   },
   "engines": {
     "node": "18.x"

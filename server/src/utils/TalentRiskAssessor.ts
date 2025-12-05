@@ -8,6 +8,7 @@ export interface RiskFactors {
 
 export interface RiskAssessment {
   score: number; // 0-100 percentage
+  level: 'low' | 'medium' | 'high'; // ← ADDED THIS LINE
   factors: RiskFactors;
   trend?: 'improving' | 'deteriorating' | 'stable';
 }
@@ -22,10 +23,10 @@ export class TalentRiskAssessor {
       skills: this.calculateSkillsRisk(employee)
     };
 
-    // Weighted risk calculation
+   
     const weights = {
-      performance: 0.3,
-      tenure: 0.2,
+      performance: 0.35,  
+      tenure: 0.15,       
       engagement: 0.25,
       compensation: 0.15,
       skills: 0.1
@@ -35,13 +36,35 @@ export class TalentRiskAssessor {
       return total + (factors[key as keyof RiskFactors] * weights[key as keyof typeof weights]);
     }, 0);
 
+  
+    const rawScore = weightedScore * 100;
+    const curvedScore = this.applyRiskCurve(rawScore);
+    const finalScore = Math.min(100, Math.max(0, curvedScore));
+    const level = this.getRiskLevel(finalScore);
+
     return {
-      score: Math.min(100, Math.max(0, weightedScore * 100)), // Convert to percentage (0-100%)
+      score: finalScore,
+      level,
       factors,
       trend: this.calculateRiskTrend(employee)
     };
   }
 
+ 
+  private applyRiskCurve(score: number): number {
+    // Power curve to spread middle scores
+    const normalized = score / 100;
+    const curved = Math.pow(normalized, 1.3) * 100;
+    return curved;
+  }
+
+  private getRiskLevel(score: number): 'low' | 'medium' | 'high' {
+    if (score >= 70) return 'high';
+    if (score >= 30) return 'medium';
+    return 'low';
+  }
+
+  
   private calculatePerformanceRisk(employee: any): number {
     const rating = employee.performanceRating || employee.performance || 3;
     return Math.max(0, (5 - rating) / 4);
