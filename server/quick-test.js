@@ -9,14 +9,14 @@ async function quickTest() {
   const employees = db.collection('employees');
   
   const count = await employees.countDocuments();
-  console.log(`Ì≥ä Employees in database: ${count}`);
+  console.log(` Employees in database: ${count}`);
   
   if (count > 0) {
     const sample = await employees.findOne({});
-    console.log('\nÌ±§ SAMPLE EMPLOYEE:');
+    console.log('\n SAMPLE EMPLOYEE:');
     console.log(`   Name: ${sample.name}`);
     console.log(`   Email: ${sample.email}`);
-    console.log(`   Risk: ${sample.riskScore}% ‚Üí ${sample.riskLevel}`);
+    console.log(`   Risk: ${sample.riskScore}%  ${sample.riskLevel}`);
     console.log(`   Department: ${sample.department}`);
     
     // Distribution
@@ -25,13 +25,13 @@ async function quickTest() {
     ];
     
     const dist = await employees.aggregate(pipeline).toArray();
-    console.log('\nÌ≥à RISK DISTRIBUTION:');
+    console.log('\n RISK DISTRIBUTION:');
     dist.forEach(d => {
       const pct = ((d.count / count) * 100).toFixed(1);
       console.log(`   ${d._id}: ${d.count} (${pct}%)`);
     });
   } else {
-    console.log('‚ùå No employees found!');
+    console.log(' No employees found!');
   }
   
   await client.close();
