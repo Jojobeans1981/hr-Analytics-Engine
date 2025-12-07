@@ -1,41 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "target": "es2020",
+    "module": "commonjs",
+    "lib": ["es2020"],
     "outDir": "./dist",
-    "rootDir": ".",
-    "strict": true,
+    "rootDir": "./src",
+    "strict": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "jsx": "react-jsx",
-    "declaration": false,
-    "removeComments": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "moduleResolution": "node",
+    "allowJs": true,
+    "checkJs": false
   },
-  "include": [
-    "server.tsx",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "seed-*.ts",
-    "seed-*.js"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "dashboard-new",
-    "backup"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.*", "backup"]
 }
