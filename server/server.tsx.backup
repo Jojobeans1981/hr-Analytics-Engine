@@ -12,12 +12,12 @@ import riskRoutes from './src/routes/risk.routes';
 import employeesRoutes from './src/routes/employees.route';
 import dashboardRoutes from './src/routes/dashboard.routes';
 
-import { WebSocketMessage, WebSocketData } from "./src/types/websocket";
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
 
+// ---------- CORS (single, clean config) ----------
 const allowedOrigins = [
   'https://dashboard-new-eta-blond.vercel.app', // Vercel frontend
   'http://localhost:3000',
@@ -58,13 +58,12 @@ console.log('All env vars:', Object.keys(process.env));
 const server = http.createServer(app);
 
 // ---------- WebSocket server ----------
-const wss = new WebSocketServer({
+const wss = new (WebSocket as any).Server({
   server,
   perMessageDeflate: false,
 });
 
 // Security middleware
-app.get('/favicon.ico', (req, res) => res.status(204).end());
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
@@ -181,7 +180,7 @@ wss.on('connection', (ws: WebSocket, request: http.IncomingMessage) => {
       const message = data.toString();
       console.log('📨 Received message:', message);
 
-      let parsedMessage: WebSocketMessage | { text: string };
+      let parsedMessage: any;
       try {
         parsedMessage = JSON.parse(message);
       } catch {

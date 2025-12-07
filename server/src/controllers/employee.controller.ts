@@ -32,7 +32,7 @@ export class EmployeeController {
       // Simple risk calculation - replace with actual logic
       const employee = await EmployeeService.getEmployeeById(new ObjectId(req.params.id));
       const riskData = {
-        riskScore: employee.riskScore || 25,
+        riskScore: employee?.riskScore || 25,
         factors: ['tenure', 'performance', 'engagement'] // placeholder
       };
       

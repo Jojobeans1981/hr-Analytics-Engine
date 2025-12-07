@@ -191,16 +191,16 @@ export class EmployeeService {
 
   async getHighRiskEmployees(threshold: number = 70): Promise<Employee[]> {
     const employees = await this.getEmployeesWithRisk();
-    return employees.filter(emp => emp.riskScore >= threshold);
+    return employees.filter(emp => emp.riskScore || 0 || 0 >= threshold);
   }
 
   async getRiskBreakdown(): Promise<RiskBreakdown> {
     const employees = await this.getEmployeesWithRisk();
     
     return {
-      high: employees.filter(emp => emp.riskScore >= 70).length,
-      medium: employees.filter(emp => emp.riskScore >= 30 && emp.riskScore < 70).length,
-      low: employees.filter(emp => emp.riskScore < 30).length
+      high: employees.filter(emp => emp.riskScore || 0 || 0 >= 70).length,
+      medium: employees.filter(emp => emp.riskScore || 0 >= 30 && emp.riskScore || 0 < 70).length,
+      low: employees.filter(emp => emp.riskScore || 0 || 0 || 0 < 30).length
     };
   }
 

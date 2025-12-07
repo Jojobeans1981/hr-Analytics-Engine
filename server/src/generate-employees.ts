@@ -80,7 +80,7 @@ function generateRandomEmployee(index: number, existingEmails: Set<string>) {
   const firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
   const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
   const department = DEPARTMENTS[Math.floor(Math.random() * DEPARTMENTS.length)];
-  const role = ROLES[department][Math.floor(Math.random() * ROLES[department].length)];
+  const role = (ROLES as any)[department][Math.floor(Math.random() * (ROLES as any)[department].length)];
   
   const email = generateUniqueEmail(firstName, lastName, existingEmails);
   existingEmails.add(email);
@@ -93,7 +93,7 @@ function generateRandomEmployee(index: number, existingEmails: Set<string>) {
   // Skills - 2-5 random skills from department
   const numSkills = Math.floor(Math.random() * 4) + 2;
   const skills = [];
-  const departmentSkills = [...SKILLS[department]];
+  const departmentSkills = [...(SKILLS as any)[department]];
   for (let i = 0; i < numSkills; i++) {
     if (departmentSkills.length === 0) break;
     const skillIndex = Math.floor(Math.random() * departmentSkills.length);
@@ -158,7 +158,7 @@ async function generateEmployees() {
     
     // Get existing emails
     const existingEmails = new Set(
-      await db.collection('employees')
+      await db?.collection('employees')
         .find({}, { projection: { email: 1 } })
         .toArray()
         .then(employees => employees.map(emp => emp.email))
@@ -175,8 +175,8 @@ async function generateEmployees() {
     }
     
     if (newEmployees.length > 0) {
-      const result = await db.collection('employees').insertMany(newEmployees, { ordered: false });
-      console.log(`✅ Successfully added ${result.insertedCount} new employees`);
+      const result = await db?.collection('employees').insertMany(newEmployees, { ordered: false });
+      console.log(`✅ Successfully added ${result?.insertedCount || 0} new employees`);
       
       // Show summary
       const departmentCount: {[key: string]: number} = {};
@@ -192,14 +192,14 @@ async function generateEmployees() {
       console.log('Risk Levels:', riskCount);
     }
 
-    const totalEmployees = await db.collection('employees').countDocuments();
+    const totalEmployees = await db?.collection('employees').countDocuments();
     console.log(`\n📈 Total employees in database: ${totalEmployees}`);
 
     process.exit(0);
   } catch (error: any) {
     if (error.code === 11000) {
       console.log(`✅ Partial success - some employees added before duplicate error`);
-      console.log(`📈 Total employees in database: ${await mongoose.connection.db.collection('employees').countDocuments()}`);
+      console.log(`📈 Total employees in database: ${await mongoose.connection.db?.collection('employees').countDocuments()}`);
     } else {
       console.error('❌ Generation failed:', error);
     }

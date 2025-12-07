@@ -1,391 +1,259 @@
-Prometheus workforce Analytics
-AI Talent Risk Engine
-
+# Prometheus Talent Risk Analytics Engine
 
 A sophisticated AI-powered talent risk assessment system that identifies, predicts, and mitigates employee attrition risks using machine learning patterns and real-time analytics.
 
-🚀 Quick Start
-Prerequisites
-Node.js 16+
+## 🚀 Quick Start
 
-MongoDB database
+### Prerequisites
 
-Environment variables configured
+- Node.js 18+
+- MongoDB database
+- Git
 
-Installation
-bash
-git clone <your-repo>
+### Installation
+
+```bash
+# Clone the repository
+git clone <your-repo-url>
 cd talent-risk-ai/server
+
+# Install dependencies
 npm install
-Environment Setup
-Create .env file:
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your MongoDB credentials
+
+# Build the project
+npm run build
+
+# Start development server
+npm run dev
+First-Time Setup
+bash
+# Seed the database with sample employees
+npm run seed
+
+# Access the API at http://localhost:5000
+# Health check: http://localhost:5000/api/health
+# Employees endpoint: http://localhost:5000/api/employees
+📁 Project Structure
+text
+talent-risk-ai/
+├── server/                           # Backend API Server (TypeScript/Express)
+│   ├── src/
+│   │   ├── config/                  # Configuration files
+│   │   ├── controllers/             # Request handlers
+│   │   ├── models/                  # MongoDB Schemas
+│   │   ├── routes/                  # Express routes
+│   │   ├── services/                # Business logic
+│   │   ├── types/                   # TypeScript interfaces
+│   │   └── middleware/              # Express middleware
+│   ├── server.tsx                   # Main server entry point
+│   ├── seed-main.ts                 # Database seeding
+│   ├── package.json
+│   └── tsconfig.json
+└── dashboard-new/                   # Frontend dashboard (Vercel)
+🔧 API Endpoints
+Core Endpoints
+GET /api/health - System health check
+
+GET /api/employees - Get all employees with risk analysis
+
+GET /api/employees/:id - Get specific employee details
+
+GET /api/risk - Risk assessment data
+
+GET /api/dashboard - Dashboard metrics
+
+GET /api/websocket/clients - WebSocket connection info
+
+WebSocket Server
+Real-time connection: ws://localhost:5000
+
+Live employee risk updates
+
+Instant notifications
+
+🛠️ Development Commands
+bash
+# Development
+npm run dev              # Start dev server with hot reload
+
+# Database Operations
+npm run seed             # Seed database with sample data
+npm run seed:clear       # Clear and reseed database
+npm run seed:50          # Seed 50 employees
+npm run seed:100         # Seed 100 employees
+
+# Build & Production
+npm run build           # Compile TypeScript to JavaScript
+npm run start           # Start production server
+
+# Clean
+npm run clean           # Clean build artifacts
+⚙️ Environment Configuration
+Create a .env file in the server/ directory:
 
 env
+# Database Configuration
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
 PORT=5000
 NODE_ENV=development
-First-Time Setup
-bash
-# 1. Enhance your data (run once)
-node dataEnhancer.js
 
-# 2. Calculate risk scores
-node fixedRiskScorer.js
+# CORS Configuration (for your frontend)
+CORS_ORIGIN=https://dashboard-new-eta-blond.vercel.app
+🧠 Features
+Real-time Risk Monitoring
+Live WebSocket connections for instant updates
 
-# 3. View dashboard
-node balancedDashboard.js
-📊 System Architecture
-text
-🔄 Data Layer → 🎯 Risk Engine → 📊 Monitoring → 🔮 Prediction → 🚨 Response
-🛠️ Core Components
-1. 🎯 Risk Scoring Engine
-Files:
+Continuous risk scoring based on multiple factors
 
-fixedRiskScorer.js - Main balanced risk calculator
+Automatic alerts for high-risk employees
 
-balancedRiskScorer.js - Advanced scoring with confidence
+Department-level risk dashboards
 
-dataEnhancer.js - Data quality improvement
+Multi-factor Risk Assessment
+Factor Weight Description
+Performance 40% Recent performance ratings
+Tenure 20% Time at company
+Engagement 20% Employee engagement scores
+Compensation 10%Compensation ratio analysis
+Skills 10% Skill gaps and development
+Risk Levels
+Score RangeLevel monitoring
+31-60% Medium Development plan
+61-80% High Intervention needed
+81-100% Critical Immediate action
+🚀 Deployment
+Backend (Railway)
+Connect your GitHub repository to Railway
 
-Usage:
+Add environment variables in Railway dashboard:
 
-bash
-# Calculate risk scores for all employees
-node fixedRiskScorer.js
+MONGODB_URI
 
-# Output: Processes 152 employees, shows risk distribution
-2. 📊 Real-Time Monitoring
-Files:
+PORT
 
-liveMonitor.js - Continuous risk monitoring
+CORS_ORIGIN
 
-balancedDashboard.js - Current risk overview
+Railway will automatically:
 
-departmentAnalyzer.js - Department-level insights
+Detect package.json scripts
 
-Usage:
+Run npm run build
 
-bash
-# Start live monitoring (refreshes every 30s)
-node liveMonitor.js
+Start with npm run start
 
-# View current risk dashboard
-node balancedDashboard.js
+Frontend (Vercel)
+Import project from GitHub
 
-# Analyze department risks
-node departmentAnalyzer.js
-3. 🔮 Predictive Analytics
-Files:
+Configure build settings
 
-predictiveEngine.js - Future risk prediction
+Add environment variables:
 
-aiAlertSystem.js - Proactive risk alerts
+NEXT_PUBLIC_API_BASE_URL (your Railway backend URL)
 
-executiveReport.js - Management reporting
+Connect to backend API
 
-Usage:
-
-bash
-# Predict future talent risks
-node predictiveEngine.js
-
-# Generate AI-powered alerts
-node aiAlertSystem.js
-
-# Create executive summary
-node executiveReport.js
-4. 🚨 Crisis Response
-Files:
-
-crisisResponse.js - Emergency intervention plans
-
-preventionStrategy.js - Long-term risk prevention
-
-riskMitigationPlanner.js - Individual rescue plans
-
-Usage:
-
-bash
-# Generate crisis response for critical departments
-node crisisResponse.js
-
-# Develop prevention strategies
-node preventionStrategy.js
-
-# Create individual mitigation plans
-node riskMitigationPlanner.js
-📈 Output Examples
-Risk Distribution
-text
-📊 RISK DISTRIBUTION:
-   HIGH: 3 employees (2.0%)
-   MEDIUM: 28 employees (18.4%) 
-   LOW: 29 employees (19.1%)
-   MINIMAL: 92 employees (60.5%)
-Predictive Alerts
-text
-🔮 HIGH RISK PREDICTIONS:
-1. Sarah Chen (Engineering)
-   📅 Timeframe: 6-12 months
-   🎯 Prediction: Risk of seeking advancement opportunities externally
-   📊 Confidence: 75%
-   🔍 Triggers: Top performer (4.8), No promotion in 29 months
-Crisis Response
-text
-🚨 ENGINEERING CRISIS OVERVIEW:
-   • Total Engineers: 25
-   • High/Medium Risk: 1 (4.0%)
-   • Burnout Risk: 25 engineers
-   • Top Performers at Risk: 8
-🎯 Use Cases
-For HR Leaders
-bash
-# Weekly executive briefing
-node executiveReport.js
-
-# Department health check
-node departmentAnalyzer.js
-
-# Quarterly prevention planning
-node preventionStrategy.js
-For Engineering Managers
-bash
-# Real-time team monitoring
-node liveMonitor.js
-
-# Crisis intervention
-node crisisResponse.js
-
-# Individual development plans
-node riskMitigationPlanner.js
-For Talent Acquisition
-bash
-# Identify retention risks
-node predictiveEngine.js
-
-# Skills gap analysis
-node departmentAnalyzer.js
-🔧 Advanced Usage
-Custom Risk Thresholds
-Modify fixedRiskScorer.js:
-
-javascript
-categorizeRiskLevel(score) {
-    if (score >= 0.6) return 'HIGH';      // Adjust thresholds
-    if (score >= 0.4) return 'MEDIUM';
-    if (score >= 0.2) return 'LOW';
-    return 'MINIMAL';
-}
-Department-Specific Rules
-Edit predictiveEngine.js patterns:
-
-javascript
-'engineering_burnout': {
-    pattern: 'department === "Engineering" AND engagementScore < 70',
-    weight: 0.9,
-    prediction: 'Engineering-specific burnout risk'
-}
-Custom Alerting
-Modify aiAlertSystem.js thresholds:
-
-javascript
-this.alertThresholds = {
-    riskScore: 0.7,           // High risk threshold
-    confidence: 70,           // Minimum confidence
-    departmentRisk: 0.25      // Department risk level
-};
-📋 Sample Workflows
-Daily Operations
-bash
-# Morning check
-node liveMonitor.js
-
-# Risk review
-node balancedDashboard.js
-
-# Alert triage
-node aiAlertSystem.js
-Weekly Management
-bash
-# Executive reporting
-node executiveReport.js
-
-# Department reviews
-node departmentAnalyzer.js
-
-# Predictive analysis
-node predictiveEngine.js
-Quarterly Planning
-bash
-# Strategic prevention
-node preventionStrategy.js
-
-# Crisis preparedness
-node crisisResponse.js
-
-# Success metrics review
-node executiveReport.js
-🗂️ Data Structure
-Required Employee Fields
-javascript
+📊 Data Model
+Employee Schema
+typescript
 {
-    name: "Sarah Chen",
-    email: "sarah.chen@company.com", 
-    department: "Engineering",
-    role: "Senior Developer",
-    tenure: 3.5,                    // Years
-    performanceScore: 4.8,          // 1-5 scale
-    engagementScore: 4.5,           // 1-5 scale  
-    lastPromotion: "2023-01-15",    // Date
-    skills: ["JavaScript", "React", "Node.js"]
+  employeeId: string,
+  name: string,
+  email: string,
+  department: string,
+  role: string,
+  riskScore: number,
+  riskLevel: 'low' | 'medium' | 'high',
+  performanceRating: number,
+  tenureMonths: number,
+  engagementScore: number,
+  criticalSkills: string[],
+  skillGaps: string[]
 }
-Generated Risk Fields
+🔌 Integration
+Frontend Connection
 javascript
-{
-    balancedRiskScore: 0.30,        // 0-1 scale
-    riskLevel: "LOW",               // HIGH/MEDIUM/LOW/MINIMAL
-    riskFactors: ["High performer", "No promotion in 2+ years"],
-    positiveFactors: ["Skills assessed", "Diverse technical skills"],
-    confidenceScore: 85,            // 0-100%
-    lastRiskUpdate: "2024-01-15T10:30:00Z"
-}
-🚨 Emergency Procedures
-Critical Risk Detection
-When high-risk patterns are detected:
+// API Base URL for development
+const API_URL = 'http://localhost:5000/api'
 
-Immediate: Run node crisisResponse.js
+// API Base URL for production (Railway)
+const API_URL = 'https://your-backend.railway.app/api'
 
-24 hours: Execute rescue plans from output
-
-48 hours: Escalate to leadership
-
-Engineering Department Crisis
-bash
-# Full crisis assessment
-node crisisResponse.js
-
-# Individual rescue plans
-node riskMitigationPlanner.js
-
-# Department-wide solutions
-node preventionStrategy.js
-📊 Success Metrics
-Key Performance Indicators
-High-risk population: Target < 2%
-
-At-risk percentage: Target < 20%
-
-Confidence scores: Target > 80%
-
-Prediction accuracy: Track over time
-
-Reporting Cadence
-Daily: Live monitoring and alerts
-
-Weekly: Executive dashboard
-
-Monthly: Department deep-dives
-
-Quarterly: Strategic planning
-
-🔮 Advanced Features
-Custom Prediction Patterns
-Add to predictiveEngine.js:
-
-javascript
-'custom_risk_pattern': {
-    pattern: 'tenure > 2 AND performanceScore < 3.0 AND department === "Sales"',
-    weight: 0.8,
-    prediction: 'Custom risk description',
-    mitigation: 'Recommended actions'
-}
-Integration Webhooks
-Extend aiAlertSystem.js:
-
-javascript
-// Send alerts to Slack/Teams
-async sendAlertToSlack(alert) {
-    // Implementation for chat integrations
-}
-
-// Create Jira tickets for high-risk cases
-async createSupportTicket(employee) {
-    // Implementation for ticketing systems
-}
-🛠️ Troubleshooting
+// WebSocket Connection
+const ws = new WebSocket('wss://your-backend.railway.app')
+🐛 Troubleshooting
 Common Issues
-No output from scripts:
+Database Connection Failed
 
 bash
+# Verify MongoDB URI in .env
+# Check network connectivity to MongoDB Atlas
+# Ensure IP is whitelisted in Atlas
+TypeScript Compilation Errors
+
+bash
+npm run build
+# Fix any TypeScript errors shown
+CORS Errors
+
+Update CORS_ORIGIN in .env
+
+Check frontend URL configuration
+
+Server Won't Start
+
+bash
+# Check if port 5000 is available
+# Verify all environment variables are set
 # Check MongoDB connection
-node debugRiskScorer.js
-
-# Verify data enhancement
-node checkDataEnhancement.js
-Incorrect risk scores:
-
+Testing Endpoints
 bash
-# Re-enhance data
-node dataEnhancer.js
+# Test health endpoint
+curl http://localhost:5000/api/health
 
-# Recalculate scores
-node fixedRiskScorer.js
-Missing predictions:
+# Test employees endpoint
+curl http://localhost:5000/api/employees
 
-bash
-# Check data completeness
-node dataIntegrityChecker.js
+# Test with specific ID
+curl http://localhost:5000/api/employees/EMP1001
+📈 Monitoring
+Health Checks
+API: GET /api/health
 
-# Run predictive analysis
-node predictiveEngine.js
-Data Quality Checks
-bash
-# Comprehensive data audit
-node dataIntegrityChecker.js
+Database: MongoDB connection status
 
-# Skills data verification
-node checkDataEnhancement.js
+WebSocket: Active connections count
 
-# Risk score validation
-node debugRiskScorer.js
-📈 Scaling & Production
-For Large Organizations
-Schedule scripts via cron jobs
+Logs
+Application logs in console
 
-Implement Redis caching for frequent queries
+Error logs in logs/ directory
 
-Add MongoDB indexing for performance
+Railway dashboard for production logs
 
-Set up monitoring and logging
+Vercel dashboard for frontend logs
 
-Integration Points
-HRIS systems (Workday, BambooHR)
+🤝 Contributing
+Fork the repository
 
-Performance management tools
+Create a feature branch
 
-Communication platforms (Slack, Teams)
+Commit changes
 
-Project management systems (Jira)
+Push to the branch
 
-🎯 Getting Help
-Debugging
-bash
-# Comprehensive system check
-node debugRiskScorer.js
+Open a Pull Request
 
-# Data quality assessment  
-node dataIntegrityChecker.js
+📄 License
+MIT License
 
-# Performance monitoring
-node liveMonitor.js
-Support Scripts
-debugRiskScorer.js - System diagnostics
+🙏 Acknowledgments
+Built with Node.js, Express, TypeScript, and MongoDB
 
-dataIntegrityChecker.js - Data validation
+Real-time features powered by WebSocket
 
-simpleRiskScorer.js - Minimal test version
+Deployed on Railway and Vercel
 
-📄 License & Attribution
-This AI Talent Risk Engine provides enterprise-grade talent analytics. Customize thresholds and patterns for your organization's specific needs.
-
-🎉 Your AI Talent Risk Engine is ready to transform how you manage and retain talen
