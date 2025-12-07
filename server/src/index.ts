@@ -429,3 +429,19 @@ server.listen(PORT, () => {
   console.log(` Advanced Talent Risk Assessment System: Active`);
   console.log(` Using your exact TalentRiskAssessor implementation`);
 });
+// Add CORS middleware before routes
+import cors from 'cors';
+
+const allowedOrigins = [
+  'https://dashboard-new-eta-blond.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://prometheus-talent-engine-production.up.railway.app'
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'X-Requested-With', 'Accept'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
