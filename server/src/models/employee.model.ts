@@ -34,5 +34,4 @@ employeeSchema.virtual("riskLevel").get(function (this: IEmployee) {
   if (this.riskScore < 0.7) return "Medium";
   return "High";
 });
-
 export const Employee = mongoose.model<IEmployee>("Employee", employeeSchema);

@@ -14,7 +14,8 @@
     "seed:100": "tsx seed-main.ts --count=100",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "echo \"No linter configured\"",
-    "clean": "rm -rf dist node_modules package-lock.json"
+    "clean": "rm -rf dist node_modules package-lock.json",
+    "railway": "./railway-start.sh"
   },
   "engines": {
     "node": ">=18.0.0"
