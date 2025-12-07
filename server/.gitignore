@@ -23,3 +23,5 @@ build/
 
 # Vercel
 .vercel
+/seed-main.ts
+/*seed*
