@@ -7,6 +7,8 @@ export interface IEmployee extends Document {
   email: string;
   riskScore: number;
   riskLevel?: string;
+  latestAssessment?: Schema.Types.ObjectId;
+
 }
 
 const employeeSchema = new Schema<IEmployee>(
@@ -16,6 +18,8 @@ const employeeSchema = new Schema<IEmployee>(
     department: { type: String, required: true },
     email: { type: String, unique: true, required: true },
     riskScore: { type: Number, required: true },
+    latestAssessment: { type: Schema.Types.ObjectId, ref: 'Assessment' },
+
   },
   {
     timestamps: true,

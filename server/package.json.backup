@@ -2,26 +2,25 @@
   "name": "talent-risk-server",
   "version": "1.0.0",
   "description": "Backend server for talent risk assessment platform",
-  "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch server.tsx",
+    "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/index.js",
     "heroku-postbuild": "npm run build",
-    "seed": "tsx seed-main.ts",
-    "seed:clear": "tsx seed-main.ts --clear",
-    "seed:50": "tsx seed-main.ts --count=50",
-    "seed:100": "tsx seed-main.ts --count=100",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "echo \"No linter configured\"",
-    "clean": "rm -rf dist node_modules package-lock.json"
-  },
+    "seed": "tsx seed-employees-dynamic.ts",
+    "seed:clear": "tsx seed-employees-dynamic.ts --clear",
+    "seed:50": "tsx seed-employees-dynamic.ts --count=50",
+    "seed:100": "tsx seed-employees-dynamic.ts --count=100",
+    "seed:simple": "tsx seed-employees-simple.ts",
+    "seed:simple:clear": "tsx seed-employees-simple.ts --clear"
+    },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "18.x"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",
     "@tensorflow/tfjs": "^4.22.0",
+    "@types/uuid": "^10.0.0",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "compression": "^1.8.1",
@@ -46,18 +45,8 @@
     "@types/morgan": "^1.9.10",
     "@types/node": "^20.19.25",
     "@types/nodemailer": "^7.0.3",
-    "@types/uuid": "^10.0.0",
     "@types/ws": "^8.18.1",
     "tsx": "^4.0.0",
     "typescript": "^5.3.3"
-  },
-  "keywords": [
-    "talent-risk",
-    "analytics",
-    "nodejs",
-    "express",
-    "typescript"
-  ],
-  "author": "Your Name",
-  "license": "MIT"
+  }
 }

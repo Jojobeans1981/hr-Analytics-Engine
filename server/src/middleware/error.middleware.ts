@@ -1,10 +1,6 @@
 import { ErrorRequestHandler } from 'express';
 import logger from '../config/logger';
 
-export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  logger.error(err.stack);
-  res.status(500).send('Something broke!');
-
 interface ValidationError extends Error {
   name: 'ValidationError';
   errors: Record<string, { message: string }>;
@@ -15,6 +11,9 @@ interface MongoError extends Error {
   keyValue?: Record<string, any>;
 }
 
+export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+  logger.error(err.stack);
+  
   // Mongoose validation error
   if (err.name === 'ValidationError') {
     const validationError = err as ValidationError;
@@ -40,8 +39,8 @@ interface MongoError extends Error {
   }
 
   // Default error
-  const status = 'status' in err ? err.status : 500;
-  res.status(status).json({
+  const status = 'status' in err ? (err as any).status : 500;
+  return res.status(status).json({
     error: err.message || 'Internal Server Error',
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });

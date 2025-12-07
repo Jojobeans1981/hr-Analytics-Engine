@@ -154,7 +154,7 @@ function generateSkills(profile: any) {
 async function seed() {
   try {
     console.log('í¼± Connecting to MongoDB...');
-    await mongoose.connect(MONGODB_URI);
+    await mongoose.connect(MONGODB_URI!);
     console.log('âœ… MongoDB connected');
     
     // Optional: Clear existing employees (comment out if you want to keep existing data)
@@ -196,7 +196,7 @@ async function seed() {
       
       // Get department and role
       const department = departments[i % departments.length];
-      const roles = rolesByDepartment[department] || ['Employee'];
+      const roles = (rolesByDepartment as any)[department] || ['Employee'];
       const role = roles[i % roles.length];
       const location = locations[i % locations.length];
       
@@ -255,10 +255,10 @@ async function seed() {
     console.log('\ní±¥ SAMPLE EMPLOYEES:');
     const samples = await Employee.find().limit(3);
     samples.forEach((emp, idx) => {
-      console.log(`\n${idx + 1}. ${emp.name} (${emp.employeeId})`);
+      console.log(`\n${idx + 1}. ${emp.name} (${(emp as any).employeeId || "N/A"})`);
       console.log(`   ${emp.department} - ${emp.role}`);
-      console.log(`   Risk: ${emp.riskScore}% â†’ ${emp.riskLevel.toUpperCase()}`);
-      console.log(`   Perf: ${emp.performanceRating}/5.0, Tenure: ${emp.tenureMonths}mo`);
+      console.log(`   Risk: ${emp.riskScore}% â†’ ${(emp.riskLevel || "unknown").toUpperCase()}`);
+      console.log(`   Perf: ${(emp as any).performanceRating || 0}/5.0, Tenure: ${(emp as any).tenureMonths || 0}mo`);
       console.log(`   Email: ${emp.email}`);
     });
     

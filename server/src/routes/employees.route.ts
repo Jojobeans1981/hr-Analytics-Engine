@@ -69,8 +69,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const employees = await employeeService.getEmployeesWithRisk();
     const employee = employees.find(emp => 
       emp.id === req.params.id || 
-      emp._id.toString() === req.params.id
-    
+      emp._id?.toString() === req.params.id
     );
     
     if (!employee) {
@@ -80,13 +79,13 @@ router.get('/:id', async (req: Request, res: Response) => {
       });
     }
     
-    res.json({
+    return res.json({
       success: true,
       data: employee
     });
   } catch (error) {
     console.error('Error in getEmployeeById:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch employee'
     });
