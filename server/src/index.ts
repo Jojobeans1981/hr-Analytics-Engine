@@ -14,8 +14,8 @@ const server = createServer(app);
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/prometheus';
 mongoose.connect(MONGODB_URI)
-  .then(() => console.log('‚úÖ MongoDB connected successfully'))
-  .catch(err => console.error('‚ùå MongoDB connection error:', err));
+  .then(() => console.log(' MongoDB connected successfully'))
+  .catch(err => console.error(' MongoDB connection error:', err));
 
 // Employee model
 const EmployeeSchema = new mongoose.Schema({
@@ -228,7 +228,7 @@ class TalentRiskAssessor {
 
 // Initialize your TalentRiskAssessor
 const talentRiskAssessor = new TalentRiskAssessor();
-console.log('ÌæØ Advanced Talent Risk Assessment System initialized');
+console.log(' Advanced Talent Risk Assessment System initialized');
 
 const wss = new WebSocketServer({ 
   server,
@@ -236,7 +236,7 @@ const wss = new WebSocketServer({
 });
 
 wss.on('connection', (ws, request) => {
-  console.log('Ì¥å New WebSocket client connected');
+  console.log(' New WebSocket client connected');
   ws.send(JSON.stringify({
     type: 'connected',
     message: 'WebSocket connection established',
@@ -269,7 +269,7 @@ app.get('/health', (req, res) => {
 app.get('/api/employees', async (req, res) => {
   try {
     const employees = await Employee.find({}).limit(100);
-    console.log(`Ì≥ä Found ${employees.length} employees in database`);
+    console.log(` Found ${employees.length} employees in database`);
     
     // Add advanced risk assessments using your TalentRiskAssessor
     const employeesWithRisk = await Promise.all(
@@ -362,7 +362,7 @@ app.get('/api/dashboard-metrics', async (req, res) => {
       notifications: []
     };
     
-    console.log(`Ì≥à Advanced dashboard metrics: ${employees.length} employees, avg risk: ${teamAssessment.averageRisk}`);
+    console.log(` Advanced dashboard metrics: ${employees.length} employees, avg risk: ${teamAssessment.averageRisk}`);
     res.json(metrics);
     
   } catch (error) {
@@ -425,7 +425,7 @@ app.get('/api/employees/high-risk', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Ì∫Ä Server running on port ${PORT}`);
-  console.log(`Ì≥ç Advanced Talent Risk Assessment System: Active`);
-  console.log(`Ì≥ç Using your exact TalentRiskAssessor implementation`);
+  console.log(` Server running on port ${PORT}`);
+  console.log(` Advanced Talent Risk Assessment System: Active`);
+  console.log(` Using your exact TalentRiskAssessor implementation`);
 });
