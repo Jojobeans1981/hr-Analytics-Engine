@@ -25,7 +25,7 @@ const allowedOrigins = [
 ];
 
 const corsOptions: CorsOptions = {
-  origin(origin, callback) {
+  origin(origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
     // Allow requests with no origin (curl, Postman, server-to-server)
     if (!origin) return callback(null, true);
 
@@ -39,7 +39,7 @@ const corsOptions: CorsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['cache-control', 'Content-Type', 'Authorization', 'X-Requested-With'],
 };
 
 // Apply CORS and preflight handling globally
@@ -58,7 +58,7 @@ console.log('All env vars:', Object.keys(process.env));
 const server = http.createServer(app);
 
 // ---------- WebSocket server ----------
-const wss = new WebSocketServer({
+const wss = new (WebSocket as any).Server({
   server,
   perMessageDeflate: false,
 });
@@ -223,13 +223,13 @@ wss.on('connection', (ws: WebSocket, request: http.IncomingMessage) => {
     }
   });
 
-  ws.on('close', (code, reason) => {
+  ws.on('close', (code: number, reason: Buffer) => {
     console.log('🔌 WebSocket client disconnected');
     console.log(`📍 Total connections: ${wss.clients.size}`);
-    console.log(`📍 Close code: ${code}, Reason: ${reason}`);
+    console.log(`📍 Close code: ${code}, Reason: ${reason.toString()}`);
   });
 
-  ws.on('error', (error) => {
+  ws.on('error', (error: Error) => {
     console.error('WebSocket error:', error);
   });
 
