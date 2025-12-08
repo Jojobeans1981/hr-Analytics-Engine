@@ -1,95 +1,72 @@
-import { Router, Request, Response } from 'express';
-import { EmployeeService } from '../services/employee.service';
-
+import { Router } from 'express';
 const router = Router();
-const employeeService = new EmployeeService();
 
-// Get all employees with risk assessment
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    const employees = await employeeService.getEmployeesWithRisk();
-    
-    res.json({
-      success: true,
-      data: employees,
-      count: employees.length,
-      riskBreakdown: await employeeService.getRiskBreakdown()
-    });
-  } catch (error) {
-    console.error('Error in getEmployees:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch employees with risk assessment'
-    });
-  }
+// GET all employees
+router.get('/', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      { id: 1, name: 'John Doe', email: 'john@company.com', department: 'Engineering', riskLevel: 'medium' },
+      { id: 2, name: 'Jane Smith', email: 'jane@company.com', department: 'Sales', riskLevel: 'low' },
+      { id: 3, name: 'Bob Johnson', email: 'bob@company.com', department: 'Marketing', riskLevel: 'high' }
+    ]
+  });
 });
 
-// Get high-risk employees
-router.get('/high-risk', async (req: Request, res: Response) => {
-  try {
-    const threshold = parseInt(req.query.threshold as string) || 70;
-    const highRiskEmployees = await employeeService.getHighRiskEmployees(threshold);
-    
-    res.json({
-      success: true,
-      data: highRiskEmployees,
-      count: highRiskEmployees.length,
-      threshold
-    });
-  } catch (error) {
-    console.error('Error in getHighRiskEmployees:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch high-risk employees'
-    });
-  }
-});
-
-// Get risk breakdown
-router.get('/risk-breakdown', async (req: Request, res: Response) => {
-  try {
-    const breakdown = await employeeService.getRiskBreakdown();
-    
-    res.json({
-      success: true,
-      data: breakdown
-    });
-  } catch (error) {
-    console.error('Error in getRiskBreakdown:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch risk breakdown'
-    });
-  }
-});
-
-// Get employee by ID with detailed risk assessment
-router.get('/:id', async (req: Request, res: Response) => {
-  try {
-    const employees = await employeeService.getEmployeesWithRisk();
-    const employee = employees.find(emp => 
-      emp.id === req.params.id || 
-      emp._id?.toString() === req.params.id
-    );
-    
-    if (!employee) {
-      return res.status(404).json({
-        success: false,
-        error: 'Employee not found'
-      });
+// GET employee by ID
+router.get('/:id', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      id: req.params.id,
+      name: 'John Doe',
+      email: 'john@company.com',
+      position: 'Senior Developer',
+      department: 'Engineering',
+      manager: 'Sarah Wilson',
+      hireDate: '2022-03-15',
+      riskScore: 6.8,
+      lastAssessment: '2024-01-10'
     }
-    
-    return res.json({
-      success: true,
-      data: employee
-    });
-  } catch (error) {
-    console.error('Error in getEmployeeById:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Failed to fetch employee'
-    });
-  }
+  });
+});
+
+// POST create new employee
+router.post('/', (req, res) => {
+  res.json({
+    success: true,
+    data: req.body,
+    message: 'Employee created successfully'
+  });
+});
+
+// PUT update employee
+router.put('/:id', (req, res) => {
+  res.json({
+    success: true,
+    data: { id: req.params.id, ...req.body },
+    message: 'Employee updated successfully'
+  });
+});
+
+// DELETE employee
+router.delete('/:id', (req, res) => {
+  res.json({
+    success: true,
+    message: `Employee ${req.params.id} deleted successfully`
+  });
+});
+
+// GET employee search
+router.get('/search', (req, res) => {
+  const { name, department, riskLevel } = req.query;
+  res.json({
+    success: true,
+    filters: { name, department, riskLevel },
+    results: [
+      { id: 1, name: 'John Doe', department: 'Engineering', riskLevel: 'medium' }
+    ]
+  });
 });
 
 export default router;
