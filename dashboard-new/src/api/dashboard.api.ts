@@ -3,7 +3,6 @@ const API_BASE_URL = 'https://prometheus-talent-engine-production.up.railway.app
 export async function getDashboardMetrics() {
   const res = await fetch(`${API_BASE_URL}/risk/dashboard`, { 
     headers: {
-      'Cache-Control': 'no-cache',
       'Pragma': 'no-cache'
     }
   });
@@ -16,7 +15,6 @@ export async function getDashboardMetrics() {
 export async function getEmployees() {
   const res = await fetch(`${API_BASE_URL}/risk/employees`, { 
     headers: {
-      'Cache-Control': 'no-cache', 
       'Pragma': 'no-cache'
     }
   });
@@ -39,7 +37,6 @@ export async function getEmployees() {
 export async function getHighRiskAlerts() {
   const res = await fetch(`${API_BASE_URL}/risk/alerts/high-risk`, {
     headers: {
-      'Cache-Control': 'no-cache',
       'Pragma': 'no-cache'
     }
   });
@@ -54,7 +51,6 @@ export async function triggerRiskAnalysis() {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
       'Pragma': 'no-cache'
     }
   });
