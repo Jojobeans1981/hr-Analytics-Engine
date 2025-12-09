@@ -1,0 +1,50 @@
+{"code":"ENOTFOUND","hostname":"_mongodb._tcp.cluster.mongodb.net","level":"error","message":"Server startup failed: querySrv ENOTFOUND _mongodb._tcp.cluster.mongodb.net","stack":"Error: querySrv ENOTFOUND _mongodb._tcp.cluster.mongodb.net\n    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:291:17)","syscall":"querySrv","timestamp":"2025-08-02T05:18:40.885Z"}
+{"code":"ENOTFOUND","hostname":"_mongodb._tcp.cluster.mongodb.net","level":"error","message":"Server startup failed: querySrv ENOTFOUND _mongodb._tcp.cluster.mongodb.net","stack":"Error: querySrv ENOTFOUND _mongodb._tcp.cluster.mongodb.net\n    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:291:17)","syscall":"querySrv","timestamp":"2025-08-02T05:51:49.181Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-02T05:55:00.374Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/"},"timestamp":"2025-08-02T05:55:49.085Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:05:55:49 +0000] \"GET / HTTP/1.1\" 404 139 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T05:55:49.240Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/favicon.ico"},"timestamp":"2025-08-02T05:55:49.973Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:05:55:49 +0000] \"GET /favicon.ico HTTP/1.1\" 404 150 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T05:55:49.999Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/.well-known/appspecific/com.chrome.devtools.json"},"timestamp":"2025-08-02T05:55:58.285Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:05:55:58 +0000] \"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1\" 404 187 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T05:55:58.299Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/api/test"},"timestamp":"2025-08-02T05:56:16.557Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:05:56:16 +0000] \"GET /api/test HTTP/1.1\" 404 147 \"-\" \"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36\"","timestamp":"2025-08-02T05:56:16.663Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/.well-known/appspecific/com.chrome.devtools.json"},"timestamp":"2025-08-02T05:56:17.228Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:05:56:17 +0000] \"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1\" 404 187 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T05:56:17.531Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/api"},"timestamp":"2025-08-02T05:56:22.960Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:05:56:23 +0000] \"GET /api HTTP/1.1\" 404 142 \"-\" \"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36\"","timestamp":"2025-08-02T05:56:23.037Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/.well-known/appspecific/com.chrome.devtools.json"},"timestamp":"2025-08-02T05:56:23.268Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:05:56:23 +0000] \"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1\" 404 187 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T05:56:23.342Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-02T05:59:22.639Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-02T06:00:58.076Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-02T06:02:02.092Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-02T06:02:16.622Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-02T06:03:11.583Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/api"},"timestamp":"2025-08-02T06:04:07.164Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:06:04:07 +0000] \"GET /api HTTP/1.1\" 404 142 \"-\" \"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36\"","timestamp":"2025-08-02T06:04:07.580Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/.well-known/appspecific/com.chrome.devtools.json"},"timestamp":"2025-08-02T06:04:07.835Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:06:04:08 +0000] \"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1\" 404 187 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T06:04:08.092Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/"},"timestamp":"2025-08-02T06:04:10.002Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:06:04:10 +0000] \"GET / HTTP/1.1\" 404 139 \"-\" \"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36\"","timestamp":"2025-08-02T06:04:10.088Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/.well-known/appspecific/com.chrome.devtools.json"},"timestamp":"2025-08-02T06:04:10.560Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:06:04:10 +0000] \"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1\" 404 187 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T06:04:10.677Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-02T06:05:11.260Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/"},"timestamp":"2025-08-02T06:05:47.146Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:06:05:47 +0000] \"GET / HTTP/1.1\" 404 139 \"-\" \"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36\"","timestamp":"2025-08-02T06:05:47.185Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/.well-known/appspecific/com.chrome.devtools.json"},"timestamp":"2025-08-02T06:05:47.630Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:06:05:47 +0000] \"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1\" 404 187 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T06:05:47.795Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-02T06:09:13.894Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/ap"},"timestamp":"2025-08-02T06:13:18.888Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:06:13:19 +0000] \"GET /ap HTTP/1.1\" 404 141 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T06:13:19.103Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/api/test"},"timestamp":"2025-08-02T06:13:22.242Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:06:13:22 +0000] \"GET /api/test HTTP/1.1\" 404 147 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T06:13:22.311Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/api/test"},"timestamp":"2025-08-02T06:13:29.439Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:06:13:29 +0000] \"GET /api/test HTTP/1.1\" 404 147 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T06:13:29.442Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/api"},"timestamp":"2025-08-02T06:13:34.545Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:06:13:34 +0000] \"GET /api HTTP/1.1\" 404 142 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T06:13:34.556Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-02T06:16:11.443Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/api"},"timestamp":"2025-08-02T06:21:53.070Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:06:21:53 +0000] \"GET /api HTTP/1.1\" 404 142 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T06:21:53.084Z"}
+{"level":"info","message":{"ip":"::1","method":"GET","url":"/"},"timestamp":"2025-08-02T06:21:56.946Z"}
+{"level":"info","message":"::1 - - [02/Aug/2025:06:21:56 +0000] \"GET / HTTP/1.1\" 404 139 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\"","timestamp":"2025-08-02T06:21:56.949Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-08-02T06:24:57.651Z"}

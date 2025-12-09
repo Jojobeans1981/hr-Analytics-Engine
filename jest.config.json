@@ -1,0 +1,6 @@
+{
+  "testEnvironment": "node",
+  "coverageDirectory": "coverage",
+  "testMatch": ["**/test/**/*.test.js"],
+  "coveragePathIgnorePatterns": ["/node_modules/"]
+}
