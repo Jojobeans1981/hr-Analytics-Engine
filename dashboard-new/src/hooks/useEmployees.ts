@@ -27,8 +27,8 @@ export function useEmployees() {
     const fetchData = async () => {
       try {
         const [employeesRes, metricsRes] = await Promise.all([
-          fetch('/api/employees'),
-          fetch('/api/employees/metrics')
+          fetch('http://localhost:5000/api/employees'),
+          fetch('http://localhost:5000/api/employees/metrics')
         ]);
 
         const checkJSON = async (res: Response) => {

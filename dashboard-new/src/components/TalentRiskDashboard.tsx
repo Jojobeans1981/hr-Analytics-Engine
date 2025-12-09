@@ -266,7 +266,7 @@ const AddEmployeeModal = ({ isVisible, onClose, onSave, initialData = null }: an
 
             const employeeData = {
                 ...formData,
-                skills: skills.map(s => s.trim()).filter(s => s.length > 0),
+                skills: skills.map((s: string) => s.trim()).filter((s: string) => s.length > 0),
                 riskScore,
                 riskLevel: getRiskLevel(riskScore),
             };

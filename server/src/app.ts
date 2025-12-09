@@ -37,7 +37,6 @@ const corsOptions = {
     'Access-Control-Allow-Headers',
     'Access-Control-Request-Method',
     'Access-Control-Request-Headers',
-    'Cache-Control',
     'Pragma',
     'If-Modified-Since',
     'If-None-Match'

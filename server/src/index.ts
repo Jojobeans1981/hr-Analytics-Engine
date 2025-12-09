@@ -430,7 +430,7 @@ server.listen(PORT, () => {
   console.log(` Using your exact TalentRiskAssessor implementation`);
 });
 // Add CORS middleware before routes
-import cors from 'cors';
+
 
 const allowedOrigins = [
   'https://dashboard-new-eta-blond.vercel.app',
@@ -442,6 +442,6 @@ const allowedOrigins = [
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'X-Requested-With', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
