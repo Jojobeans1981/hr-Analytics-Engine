@@ -17,4 +17,14 @@ router.get('/', (req, res) => {
     });
 });
 
+// Dashboard metrics route
+router.get('/dashboard-metrics', (req, res) => {
+  res.json({
+    atRiskEmployees: 5,
+    highRiskProjects: 3,
+    avgRiskScore: 78.4,
+    retentionRate: 92.5
+  });
+});
+
 module.exports = router;
