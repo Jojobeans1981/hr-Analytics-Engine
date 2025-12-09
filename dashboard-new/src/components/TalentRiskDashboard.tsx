@@ -8,7 +8,7 @@ import {
 // Automatically detects environment
 const API_BASE_URL = process.env.REACT_APP_API_URL || 
     (process.env.NODE_ENV === 'production' 
-        ? 'https://your-railway-backend.com/api' 
+        ? 'https://prometheus-talent-engine-production.up.railway.app/api' 
         : 'http://localhost:5000/api');
 
 // --- API SERVICE FUNCTIONS ---
