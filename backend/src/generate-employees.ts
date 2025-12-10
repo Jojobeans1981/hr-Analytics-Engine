@@ -1,210 +1,296 @@
 import mongoose from 'mongoose';
+import { faker } from '@faker-js/faker';
 
-const MONGODB_URI = 'mongodb+srv://beamers051681:Wookie2011@Prometheus.inv2hx4.mongodb.net/Prometheus?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/talent-analytics';
 
-// Configuration - CHANGE THIS NUMBER
-const NUMBER_OF_EMPLOYEES_TO_GENERATE = 100;
-
-// Expanded data pools to avoid duplicates
-const FIRST_NAMES = [
-  'James', 'Mary', 'John', 'Patricia', 'Robert', 'Jennifer', 'Michael', 'Linda', 
-  'William', 'Elizabeth', 'David', 'Barbara', 'Richard', 'Susan', 'Joseph', 'Jessica',
-  'Thomas', 'Sarah', 'Charles', 'Karen', 'Christopher', 'Nancy', 'Daniel', 'Lisa',
-  'Matthew', 'Betty', 'Anthony', 'Margaret', 'Mark', 'Sandra', 'Donald', 'Ashley',
-  'Steven', 'Dorothy', 'Paul', 'Kimberly', 'Andrew', 'Emily', 'Joshua', 'Donna',
-  'Kenneth', 'Michelle', 'Kevin', 'Carol', 'Brian', 'Amanda', 'George', 'Melissa',
-  'Timothy', 'Deborah', 'Ronald', 'Stephanie', 'Jason', 'Rebecca', 'Edward', 'Sharon',
-  'Jeffrey', 'Laura', 'Ryan', 'Cynthia', 'Jacob', 'Kathleen', 'Gary', 'Amy',
-  'Nicholas', 'Shirley', 'Eric', 'Angela', 'Jonathan', 'Helen', 'Stephen', 'Anna',
-  'Larry', 'Brenda', 'Justin', 'Pamela', 'Scott', 'Nicole', 'Brandon', 'Samantha',
-  'Benjamin', 'Katherine', 'Samuel', 'Emma', 'Gregory', 'Ruth', 'Alexander', 'Christine'
-];
-
-const LAST_NAMES = [
-  'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis',
-  'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson',
-  'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin', 'Lee', 'Perez', 'Thompson',
-  'White', 'Harris', 'Sanchez', 'Clark', 'Ramirez', 'Lewis', 'Robinson', 'Walker',
-  'Young', 'Allen', 'King', 'Wright', 'Scott', 'Torres', 'Nguyen', 'Hill', 'Flores',
-  'Green', 'Adams', 'Nelson', 'Baker', 'Hall', 'Rivera', 'Campbell', 'Mitchell',
-  'Carter', 'Roberts', 'Gomez', 'Phillips', 'Evans', 'Turner', 'Diaz', 'Parker',
-  'Cruz', 'Edwards', 'Collins', 'Reyes', 'Stewart', 'Morris', 'Morales', 'Murphy',
-  'Cook', 'Rogers', 'Gutierrez', 'Ortiz', 'Morgan', 'Cooper', 'Peterson', 'Bailey',
-  'Reed', 'Kelly', 'Howard', 'Ramos', 'Kim', 'Cox', 'Ward', 'Richardson', 'Watson',
-  'Brooks', 'Chavez', 'Wood', 'James', 'Bennett', 'Gray', 'Mendoza', 'Ruiz', 'Hughes'
-];
-
-const DEPARTMENTS = ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations', 'Product', 'Design'];
-const ROLES = {
-  Engineering: ['Software Engineer', 'Senior Developer', 'DevOps Engineer', 'QA Engineer', 'Tech Lead', 'Architect'],
-  Sales: ['Sales Representative', 'Account Executive', 'Sales Manager', 'Business Development'],
-  Marketing: ['Marketing Specialist', 'Content Writer', 'SEO Analyst', 'Social Media Manager'],
-  HR: ['HR Specialist', 'Recruiter', 'HR Business Partner', 'Talent Manager'],
-  Finance: ['Financial Analyst', 'Accountant', 'Finance Manager', 'Controller'],
-  Operations: ['Operations Manager', 'Project Coordinator', 'Operations Analyst'],
-  Product: ['Product Manager', 'Product Owner', 'Product Analyst'],
-  Design: ['UX Designer', 'UI Designer', 'Product Designer']
+// === CONFIGURATION - ADJUST THESE VALUES ===
+const CONFIG = {
+  // Total number of employees to generate
+  TOTAL_EMPLOYEES: 100,
+  
+  // Risk level distribution (must sum to 1.0)
+  RISK_DISTRIBUTION: {
+    HIGH: 0.30,    // 30% high risk
+    MEDIUM: 0.40,  // 40% medium risk  
+    LOW: 0.30      // 30% low risk
+  },
+  
+  // Department distribution
+  DEPARTMENTS: ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations', 'Product', 'Support'],
+  DEPARTMENT_WEIGHTS: [0.25, 0.15, 0.12, 0.10, 0.10, 0.10, 0.10, 0.08],
+  
+  // Location options
+  LOCATIONS: ['San Francisco', 'New York', 'London', 'Chicago', 'Remote', 'Austin', 'Boston', 'Seattle'],
+  
+  // Tenure ranges by risk level (in months)
+  TENURE_RANGES: {
+    HIGH: { min: 0, max: 12 },      // New hires more likely high risk
+    MEDIUM: { min: 13, max: 36 },   // 1-3 years
+    LOW: { min: 37, max: 120 }      // 3+ years
+  },
+  
+  // Performance rating ranges (1-5 scale)
+  PERFORMANCE_RANGES: {
+    HIGH: { min: 1.0, max: 2.5 },   // Poor performers -> high risk
+    MEDIUM: { min: 2.6, max: 3.5 }, // Average performers
+    LOW: { min: 3.6, max: 5.0 }     // Top performers -> low risk
+  },
+  
+  // Engagement score ranges (0-1 scale)
+  ENGAGEMENT_RANGES: {
+    HIGH: { min: 0.1, max: 0.4 },   // Low engagement -> high risk
+    MEDIUM: { min: 0.41, max: 0.7 }, // Moderate engagement
+    LOW: { min: 0.71, max: 0.95 }   // High engagement -> low risk
+  },
+  
+  // Compensation ratio ranges (market comparison)
+  COMP_RATIO_RANGES: {
+    HIGH: { min: 0.6, max: 0.85 },   // Underpaid -> higher risk
+    MEDIUM: { min: 0.86, max: 1.05 }, // Market rate
+    LOW: { min: 1.06, max: 1.3 }     // Well paid -> lower risk
+  }
 };
 
+// Skill definitions
 const SKILLS = {
-  Engineering: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Python', 'Java', 'AWS', 'Docker', 'Kubernetes', 'SQL', 'MongoDB'],
-  Sales: ['CRM', 'Negotiation', 'Presentation', 'Client Relations', 'Social Media', 'Analytics'],
-  Marketing: ['SEO', 'Google Ads', 'Content Strategy', 'Analytics', 'Social Media', 'Email Marketing'],
-  HR: ['Recruitment', 'Employee Relations', 'Compliance', 'Training', 'Analytics'],
-  Finance: ['Financial Modeling', 'Excel', 'Data Analysis', 'Forecasting', 'Accounting'],
-  Operations: ['Project Management', 'Process Improvement', 'Analytics', 'Coordination'],
-  Product: ['Product Strategy', 'User Research', 'Analytics', 'Roadmapping'],
-  Design: ['Figma', 'User Research', 'Prototyping', 'UI/UX Design']
+  TECHNICAL: ['JavaScript', 'Python', 'Java', 'React', 'Node.js', 'AWS', 'SQL', 'Docker'],
+  BUSINESS: ['Project Management', 'Sales', 'Marketing', 'Financial Analysis', 'HR Management'],
+  SOFT: ['Communication', 'Leadership', 'Problem Solving', 'Teamwork', 'Adaptability']
 };
 
-function generateUniqueEmail(firstName: string, lastName: string, existingEmails: Set<string>) {
-  const baseEmail = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@company.com`;
-  
-  if (!existingEmails.has(baseEmail)) {
-    return baseEmail;
-  }
-  
-  // If duplicate, add a number
-  let counter = 1;
-  let email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${counter}@company.com`;
-  
-  while (existingEmails.has(email)) {
-    counter++;
-    email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${counter}@company.com`;
-  }
-  
-  return email;
+// Risk factor explanations
+const RISK_FACTORS = {
+  HIGH: [
+    'Performance concerns',
+    'Tenure risk (new hire)',
+    'Engagement issues',
+    'Compensation below market',
+    'Critical skill gaps'
+  ],
+  MEDIUM: [
+    'Moderate performance',
+    'Moderate tenure risk',
+    'Average engagement',
+    'Market-rate compensation',
+    'Some skill gaps'
+  ],
+  LOW: [
+    'Strong performance',
+    'Established tenure',
+    'High engagement',
+    'Above-market compensation',
+    'Minimal skill gaps'
+  ]
+};
+
+// Employee model (simplified - adjust to match your actual schema)
+interface IEmployee {
+  name: string;
+  email: string;
+  employeeId: string;
+  department: string;
+  role: string;
+  location: string;
+  tenureMonths: number;
+  performanceRating: number;
+  engagementScore: number;
+  compRatio: number;
+  criticalSkills: string[];
+  skillGaps: string[];
+  riskScore: number;
+  riskLevel: 'high' | 'medium' | 'low';
+  status: 'Active' | 'On Leave' | 'Terminated';
+  hireDate: Date;
+  lastAssessmentDate: Date;
+  riskAssessment?: any;
 }
 
-function generateRandomEmployee(index: number, existingEmails: Set<string>) {
-  const firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
-  const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
-  const department = DEPARTMENTS[Math.floor(Math.random() * DEPARTMENTS.length)];
-  const role = (ROLES as any)[department][Math.floor(Math.random() * (ROLES as any)[department].length)];
+// Helper functions
+function getRandomInRange(min: number, max: number): number {
+  return parseFloat((Math.random() * (max - min) + min).toFixed(2));
+}
+
+function getRandomElement<T>(array: T[]): T {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+function getWeightedRandomElement<T>(array: T[], weights: number[]): T {
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  let random = Math.random() * totalWeight;
   
-  const email = generateUniqueEmail(firstName, lastName, existingEmails);
-  existingEmails.add(email);
+  for (let i = 0; i < array.length; i++) {
+    if (random < weights[i]) return array[i];
+    random -= weights[i];
+  }
+  return array[array.length - 1];
+}
+
+function generateSkills(): { criticalSkills: string[]; skillGaps: string[] } {
+  const skillTypes = Object.values(SKILLS).flat();
+  const criticalSkills: string[] = [];
+  const skillGaps: string[] = [];
   
-  // Generate realistic metrics
-  const tenure = Math.random() * 8 + 0.5; // 0.5 to 8.5 years
-  const performanceScore = Number((Math.random() * 2 + 3).toFixed(1)); // 3.0 to 5.0
-  const engagementScore = Number((Math.random() * 2 + 3).toFixed(1)); // 3.0 to 5.0
-  
-  // Skills - 2-5 random skills from department
-  const numSkills = Math.floor(Math.random() * 4) + 2;
-  const skills = [];
-  const departmentSkills = [...(SKILLS as any)[department]];
+  // Pick 3-5 critical skills
+  const numSkills = Math.floor(Math.random() * 3) + 3;
   for (let i = 0; i < numSkills; i++) {
-    if (departmentSkills.length === 0) break;
-    const skillIndex = Math.floor(Math.random() * departmentSkills.length);
-    skills.push(departmentSkills.splice(skillIndex, 1)[0]);
+    const skill = getRandomElement(skillTypes.filter(s => !criticalSkills.includes(s)));
+    if (skill) criticalSkills.push(skill);
   }
   
-  // Promotion logic - more likely for longer tenure
-  let lastPromotion = null;
-  if (tenure > 2 && Math.random() > 0.3) {
-    const monthsAgo = Math.floor(Math.random() * 24) + 1; // 1-24 months ago
-    const date = new Date();
-    date.setMonth(date.getMonth() - monthsAgo);
-    lastPromotion = date.toISOString().split('T')[0];
+  // Pick 1-2 skill gaps (from different categories)
+  const numGaps = Math.floor(Math.random() * 2) + 1;
+  for (let i = 0; i < numGaps; i++) {
+    const gap = getRandomElement(skillTypes.filter(s => !criticalSkills.includes(s) && !skillGaps.includes(s)));
+    if (gap) skillGaps.push(gap);
   }
   
-  // Calculate risk score based on factors
+  return { criticalSkills, skillGaps };
+}
+
+function determineRiskLevel(): 'high' | 'medium' | 'low' {
+  const random = Math.random();
+  if (random < CONFIG.RISK_DISTRIBUTION.HIGH) return 'high';
+  if (random < CONFIG.RISK_DISTRIBUTION.HIGH + CONFIG.RISK_DISTRIBUTION.MEDIUM) return 'medium';
+  return 'low';
+}
+
+function generateEmployeeData(riskLevel: 'high' | 'medium' | 'low'): Partial<IEmployee> {
+  const firstName = faker.person.firstName();
+  const lastName = faker.person.lastName();
+  const email = faker.internet.email({ firstName, lastName, provider: 'company.com' });
+  const employeeId = `EMP${1000 + Math.floor(Math.random() * 9000)}`;
+  
+  const { criticalSkills, skillGaps } = generateSkills();
+  
+  // Generate data based on risk level
+  const tenureMonths = Math.floor(getRandomInRange(
+    CONFIG.TENURE_RANGES[riskLevel].min,
+    CONFIG.TENURE_RANGES[riskLevel].max
+  ));
+  
+  const performanceRating = getRandomInRange(
+    CONFIG.PERFORMANCE_RANGES[riskLevel].min,
+    CONFIG.PERFORMANCE_RANGES[riskLevel].max
+  );
+  
+  const engagementScore = getRandomInRange(
+    CONFIG.ENGAGEMENT_RANGES[riskLevel].min,
+    CONFIG.ENGAGEMENT_RANGES[riskLevel].max
+  );
+  
+  const compRatio = getRandomInRange(
+    CONFIG.COMP_RATIO_RANGES[riskLevel].min,
+    CONFIG.COMP_RATIO_RANGES[riskLevel].max
+  );
+  
+  // Calculate risk score based on factors (inverse of good metrics)
   let riskScore = 0;
+  riskScore += ((5 - performanceRating) / 4) * 25; // Performance: 25% weight
+  riskScore += (1 - engagementScore) * 25;         // Engagement: 25% weight
+  riskScore += (1 - Math.min(compRatio, 1.2) / 1.2) * 20; // Compensation: 20% weight
+  riskScore += (Math.min(tenureMonths, 24) / 24) * 20;    // Tenure: 20% weight
+  riskScore += (skillGaps.length / 3) * 10;               // Skill gaps: 10% weight
+  riskScore = Math.min(100, Math.max(0, riskScore));
   
-  // Performance impact (30%)
-  riskScore += (1 - (performanceScore / 5)) * 0.3;
+  const hireDate = new Date();
+  hireDate.setMonth(hireDate.getMonth() - tenureMonths);
   
-  // Tenure impact (25%) - very new or very old employees have higher risk
-  if (tenure < 1) riskScore += 0.25;
-  else if (tenure > 7) riskScore += 0.15;
-  
-  // Engagement impact (25%)
-  riskScore += (1 - (engagementScore / 5)) * 0.25;
-  
-  // Promotion impact (20%) - no promotion in long tenure = higher risk
-  if (!lastPromotion && tenure > 3) riskScore += 0.2;
-  
-  riskScore = Number(Math.min(1, riskScore).toFixed(2));
-  
-  // Determine risk level
-  let riskLevel = 'Low';
-  if (riskScore > 0.6) riskLevel = 'High';
-  else if (riskScore > 0.3) riskLevel = 'Medium';
+  const lastAssessmentDate = new Date();
+  lastAssessmentDate.setDate(lastAssessmentDate.getDate() - Math.floor(Math.random() * 30));
   
   return {
     name: `${firstName} ${lastName}`,
     email,
-    department,
-    role,
-    riskScore,
-    riskLevel,
-    skills,
-    tenure: Number(tenure.toFixed(1)),
-    performanceScore,
+    employeeId,
+    department: getWeightedRandomElement(CONFIG.DEPARTMENTS, CONFIG.DEPARTMENT_WEIGHTS),
+    role: `${faker.person.jobTitle()}`,
+    location: getRandomElement(CONFIG.LOCATIONS),
+    tenureMonths,
+    performanceRating,
     engagementScore,
-    lastPromotion,
-    createdAt: new Date(),
-    updatedAt: new Date()
+    compRatio,
+    criticalSkills,
+    skillGaps,
+    riskScore: parseFloat(riskScore.toFixed(1)),
+    riskLevel,
+    status: 'Active' as const,
+    hireDate,
+    lastAssessmentDate
   };
 }
 
-async function generateEmployees() {
+async function seedDatabase() {
   try {
+    console.log('Ì¥ó Connecting to MongoDB...');
     await mongoose.connect(MONGODB_URI);
     console.log('‚úÖ Connected to MongoDB');
-
-    const db = mongoose.connection.db;
     
-    // Get existing emails
-    const existingEmails = new Set(
-      await db?.collection('employees')
-        .find({}, { projection: { email: 1 } })
-        .toArray()
-        .then(employees => employees.map(emp => emp.email))
-    );
+    // Import your actual Employee model
+    const { Employee } = await import('./models/employee.model');
     
-    console.log(`üìä Existing employees: ${existingEmails.size}`);
-    console.log(`üé≤ Generating ${NUMBER_OF_EMPLOYEES_TO_GENERATE} random employees...`);
+    // Clear existing data
+    console.log('Ì∑ëÔ∏è  Clearing existing employees...');
+    await Employee.deleteMany({});
+    console.log('‚úÖ Cleared existing employees');
     
-    const newEmployees = [];
-    const usedEmails = new Set(existingEmails);
+    // Generate employees based on configured distribution
+    console.log(`Ì±• Generating ${CONFIG.TOTAL_EMPLOYEES} employees with distribution:`);
+    console.log(`   High Risk: ${CONFIG.RISK_DISTRIBUTION.HIGH * 100}%`);
+    console.log(`   Medium Risk: ${CONFIG.RISK_DISTRIBUTION.MEDIUM * 100}%`);
+    console.log(`   Low Risk: ${CONFIG.RISK_DISTRIBUTION.LOW * 100}%`);
     
-    for (let i = 0; i < NUMBER_OF_EMPLOYEES_TO_GENERATE; i++) {
-      newEmployees.push(generateRandomEmployee(i, usedEmails));
+    const employees: any[] = [];
+    const riskCounts = { high: 0, medium: 0, low: 0 };
+    
+    for (let i = 0; i < CONFIG.TOTAL_EMPLOYEES; i++) {
+      const riskLevel = determineRiskLevel();
+      riskCounts[riskLevel]++;
+      
+      const employeeData = generateEmployeeData(riskLevel);
+      employees.push(employeeData);
+      
+      // Show progress
+      if ((i + 1) % 10 === 0 || i === CONFIG.TOTAL_EMPLOYEES - 1) {
+        process.stdout.write(`\r   Generated ${i + 1}/${CONFIG.TOTAL_EMPLOYEES} employees...`);
+      }
     }
     
-    if (newEmployees.length > 0) {
-      const result = await db?.collection('employees').insertMany(newEmployees, { ordered: false });
-      console.log(`‚úÖ Successfully added ${result?.insertedCount || 0} new employees`);
-      
-      // Show summary
-      const departmentCount: {[key: string]: number} = {};
-      const riskCount: {[key: string]: number} = { Low: 0, Medium: 0, High: 0 };
-      
-      newEmployees.forEach(emp => {
-        departmentCount[emp.department] = (departmentCount[emp.department] || 0) + 1;
-        riskCount[emp.riskLevel]++;
-      });
-      
-      console.log('\nüìä New Employees Summary:');
-      console.log('Departments:', departmentCount);
-      console.log('Risk Levels:', riskCount);
+    console.log('\nÌ≥ä Risk distribution generated:');
+    console.log(`   High Risk: ${riskCounts.high} employees`);
+    console.log(`   Medium Risk: ${riskCounts.medium} employees`);
+    console.log(`   Low Risk: ${riskCounts.low} employees`);
+    
+    // Insert in batches
+    console.log('Ì≤æ Saving to database...');
+    const batchSize = 50;
+    for (let i = 0; i < employees.length; i += batchSize) {
+      const batch = employees.slice(i, i + batchSize);
+      await Employee.insertMany(batch);
+      process.stdout.write(`\r   Saved ${Math.min(i + batchSize, employees.length)}/${employees.length} employees...`);
     }
-
-    const totalEmployees = await db?.collection('employees').countDocuments();
-    console.log(`\nüìà Total employees in database: ${totalEmployees}`);
-
+    
+    console.log('\n‚úÖ Database seeded successfully!');
+    console.log(`\nÌæâ Generated ${CONFIG.TOTAL_EMPLOYEES} employees with realistic risk profiles.`);
+    console.log(`Ì≥à You can now test your Talent Risk AI dashboard with varied data.`);
+    
+    // Verify counts
+    const totalCount = await Employee.countDocuments();
+    const highRiskCount = await Employee.countDocuments({ riskLevel: 'high' });
+    const mediumRiskCount = await Employee.countDocuments({ riskLevel: 'medium' });
+    const lowRiskCount = await Employee.countDocuments({ riskLevel: 'low' });
+    
+    console.log('\nÌ≥ã Final counts:');
+    console.log(`   Total: ${totalCount}`);
+    console.log(`   High Risk: ${highRiskCount} (${((highRiskCount/totalCount)*100).toFixed(1)}%)`);
+    console.log(`   Medium Risk: ${mediumRiskCount} (${((mediumRiskCount/totalCount)*100).toFixed(1)}%)`);
+    console.log(`   Low Risk: ${lowRiskCount} (${((lowRiskCount/totalCount)*100).toFixed(1)}%)`);
+    
     process.exit(0);
-  } catch (error: any) {
-    if (error.code === 11000) {
-      console.log(`‚úÖ Partial success - some employees added before duplicate error`);
-      console.log(`üìà Total employees in database: ${await mongoose.connection.db?.collection('employees').countDocuments()}`);
-    } else {
-      console.error('‚ùå Generation failed:', error);
-    }
+  } catch (error) {
+    console.error('‚ùå Seeding failed:', error);
     process.exit(1);
   }
 }
 
-generateEmployees();
+// Run the seeder
+seedDatabase();

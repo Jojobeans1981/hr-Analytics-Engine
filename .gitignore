@@ -1,64 +1,26 @@
-# Python/Jupyter (Analytics Project)
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-.ipynb_checkpoints/
-*.ipynb
-.mypy_cache/
-.dmypy.json
-dmypy.json
-.pytest_cache/
-.hypothesis/
-.pytest_cache/
-*.csv
-*.xlsx
-*.xls
-*.pkl
-*.pickle
-data/
-*.db
-*.sqlite
-
-# Node.js (Web App Project)
+# Dependencies
 node_modules/
-.npm
-.pnp
-.pnp.js
-build/
-dist/
-coverage/
+
+# Environment
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Runtime data
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.vercel/
-.next/
-out/
-.serverless/
-.eslintcache
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
@@ -67,13 +29,18 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
-*~
-logs/
-*.log
 
-# Temporary files
-*.tmp
-*.temp
+# Analytics data
+*.csv
+*.xlsx
+*.pkl
+*.pickle
+data/
 
-# Docker
-docker-compose.override.yml
+# Frontend specific
+frontend/build/
+frontend/.env.local
+
+# Backend specific
+backend/dist/
+backend/.env.local
