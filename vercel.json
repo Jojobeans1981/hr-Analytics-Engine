@@ -19,5 +19,9 @@
       "src": "/(.*)",
       "dest": "/build/$1"
     }
-  ]
+  ],
+
+  "git": {
+    "productionBranch": "main"
+  }
 }
