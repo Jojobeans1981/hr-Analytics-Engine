@@ -1,0 +1,12 @@
+// Add this import at the top
+import React from 'react';
+
+// Remove or fix line 87 with Record type
+// Change from: riskLevels: Record<string, number>;
+// To: riskLevels: { [key: string]: number };
+
+// Remove unused riskScorer on line 104
+// Change from: const riskScorer = new AdvancedRiskScorer();
+// To: // const riskScorer = new AdvancedRiskScorer(); // Removed unused
+
+// Or create a complete fixed version
