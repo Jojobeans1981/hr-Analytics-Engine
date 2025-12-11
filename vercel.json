@@ -7,6 +7,5 @@
     "**/*.js": {
       "maxDuration": 10
     }
-  },
-  "nodeVersion": "18.x"
+  }
 }
