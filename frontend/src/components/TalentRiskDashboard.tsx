@@ -1,272 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import {
-    Users, AlertTriangle, Database
-} from 'lucide-react';
 
-// --- API CONFIGURATION ---
-// Use relative path for Vercel deployment
 const API_BASE_URL = '/api';
 
-// Types
-interface Employee {
-  _id: string;
-  name: string;
-  department: string;
-  riskScore: number;
-  riskLevel: 'HIGH' | 'MEDIUM' | 'LOW';
-}
-
-interface Metrics {
-  totalEmployees: number;
-  avgRiskScore: number;
-  highRiskEmployees: number;
-  riskDistribution: {
-    high: number;
-    medium: number;
-    low: number;
-  };
-}
-
-// --- API SERVICE FUNCTIONS ---
-const apiService = {
-    async getEmployees(): Promise<Employee[]> {
-        try {
-            const response = await fetch(`${API_BASE_URL}/employees`, {
-                headers: { 'Content-Type': 'application/json' },
-            });
-            if (!response.ok) throw new Error(`API error: ${response.status}`);
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching employees:', error);
-            return [];
-        }
-    },
-
-    async getRiskMetrics(): Promise<Metrics> {
-        try {
-            const response = await fetch(`${API_BASE_URL}/dashboard/metrics`, {
-                headers: { 'Content-Type': 'application/json' },
-            });
-            if (!response.ok) throw new Error(`API error: ${response.status}`);
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching metrics:', error);
-            // Return default metrics
-            return {
-                totalEmployees: 0,
-                avgRiskScore: 0,
-                highRiskEmployees: 0,
-                riskDistribution: { high: 0, medium: 0, low: 0 }
-            };
-        }
-    }
-};
-
 const TalentRiskDashboard = () => {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [metrics, setMetrics] = useState<Metrics | null>(null);
+  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadData();
+    fetchEmployees();
   }, []);
 
-  const loadData = async () => {
+  const fetchEmployees = async () => {
     try {
-      const [employeesData, metricsData] = await Promise.all([
-        apiService.getEmployees(),
-        apiService.getRiskMetrics()
-      ]);
-      setEmployees(employeesData);
-      setMetrics(metricsData);
+      const response = await fetch(`${API_BASE_URL}/test`);
+      const data = await response.json();
+      setEmployees(data.data || []);
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('Error:', error);
+      // Fallback mock data
+      setEmployees([
+        { id: 1, name: 'John Doe', department: 'Engineering', riskScore: 75, riskLevel: 'HIGH' },
+        { id: 2, name: 'Jane Smith', department: 'Sales', riskScore: 45, riskLevel: 'MEDIUM' },
+        { id: 3, name: 'Mike Johnson', department: 'HR', riskScore: 25, riskLevel: 'LOW' }
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontSize: '18px',
-        color: '#666'
-      }}>
-        Loading Talent Risk Dashboard...
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
-  const displayMetrics = metrics || {
-    totalEmployees: employees.length,
-    avgRiskScore: employees.length > 0 
-      ? employees.reduce((sum, emp) => sum + (emp.riskScore || 0), 0) / employees.length
-      : 0,
-    highRiskEmployees: employees.filter(emp => emp.riskLevel === 'HIGH').length,
-    riskDistribution: {
-      high: employees.filter(emp => emp.riskLevel === 'HIGH').length,
-      medium: employees.filter(emp => emp.riskLevel === 'MEDIUM').length,
-      low: employees.filter(emp => emp.riskLevel === 'LOW').length
-    }
-  };
-
   return (
-    <div style={{ 
-      padding: '24px', 
-      backgroundColor: '#f8fafc',
-      minHeight: '100vh',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
-      <header style={{ marginBottom: '32px' }}>
-        <h1 style={{ 
-          fontSize: '32px', 
-          fontWeight: '700', 
-          color: '#1e293b',
-          marginBottom: '8px'
-        }}>
-          Talent Risk Dashboard
-        </h1>
-        <p style={{ 
-          fontSize: '16px', 
-          color: '#64748b',
-          marginBottom: '24px'
-        }}>
-          Real-time talent risk assessment powered by MongoDB
-        </p>
-      </header>
-
-      {/* Stats Cards */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-        gap: '20px',
-        marginBottom: '32px'
-      }}>
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          padding: '24px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-            <Users style={{ color: '#3b82f6', marginRight: '12px' }} size={24} />
-            <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#64748b' }}>Total Employees</h3>
-          </div>
-          <div style={{ fontSize: '36px', fontWeight: '700', color: '#1e293b' }}>
-            {displayMetrics.totalEmployees}
-          </div>
-        </div>
-
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          padding: '24px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-            <AlertTriangle style={{ color: '#ef4444', marginRight: '12px' }} size={24} />
-            <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#64748b' }}>Average Risk</h3>
-          </div>
-          <div style={{ fontSize: '36px', fontWeight: '700', color: '#1e293b' }}>
-            {Math.round(displayMetrics.avgRiskScore)}%
-          </div>
-          <div style={{ 
-            marginTop: '8px',
-            padding: '4px 12px',
-            backgroundColor: displayMetrics.avgRiskScore > 70 ? '#fef2f2' : 
-                           displayMetrics.avgRiskScore > 40 ? '#fffbeb' : '#f0fdf4',
-            color: displayMetrics.avgRiskScore > 70 ? '#991b1b' : 
-                   displayMetrics.avgRiskScore > 40 ? '#92400e' : '#065f46',
-            borderRadius: '9999px',
-            fontSize: '14px',
-            fontWeight: '500',
-            display: 'inline-block'
+    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <h1>Talent Risk Dashboard</h1>
+      <p>Total Employees: {employees.length}</p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginTop: '30px' }}>
+        {employees.map(emp => (
+          <div key={emp.id} style={{ 
+            border: '1px solid #ddd', 
+            padding: '20px', 
+            borderRadius: '8px',
+            backgroundColor: '#fff'
           }}>
-            {displayMetrics.avgRiskScore > 70 ? 'High Risk' : 
-             displayMetrics.avgRiskScore > 40 ? 'Medium Risk' : 'Low Risk'}
+            <h3>{emp.name}</h3>
+            <p>Department: {emp.department}</p>
+            <p>Risk Score: <strong>{emp.riskScore}%</strong></p>
+            <p>Risk Level: 
+              <span style={{
+                marginLeft: '10px',
+                padding: '4px 12px',
+                borderRadius: '20px',
+                backgroundColor: emp.riskScore > 70 ? '#fef2f2' : 
+                               emp.riskScore > 40 ? '#fffbeb' : '#f0fdf4',
+                color: emp.riskScore > 70 ? '#991b1b' : 
+                       emp.riskScore > 40 ? '#92400e' : '#065f46'
+              }}>
+                {emp.riskScore > 70 ? 'HIGH' : emp.riskScore > 40 ? 'MEDIUM' : 'LOW'}
+              </span>
+            </p>
           </div>
-        </div>
-      </div>
-
-      {/* Employees Table */}
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-      }}>
-        <div style={{ 
-          padding: '24px', 
-          borderBottom: '1px solid #e5e7eb',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1e293b' }}>Employee Risk Assessment</h2>
-          <span style={{ fontSize: '14px', color: '#64748b' }}>
-            Showing {employees.length} employees
-          </span>
-        </div>
-
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead style={{ backgroundColor: '#f8fafc' }}>
-              <tr>
-                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: '#64748b', borderBottom: '1px solid #e5e7eb' }}>Name</th>
-                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: '#64748b', borderBottom: '1px solid #e5e7eb' }}>Department</th>
-                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: '#64748b', borderBottom: '1px solid #e5e7eb' }}>Risk Level</th>
-                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: '#64748b', borderBottom: '1px solid #e5e7eb' }}>Risk Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              {employees.slice(0, 10).map(emp => (
-                <tr key={emp._id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#1e293b' }}>{emp.name || 'Unknown'}</td>
-                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#1e293b' }}>{emp.department || 'N/A'}</td>
-                  <td style={{ padding: '16px 24px' }}>
-                    <span style={{
-                      padding: '4px 12px',
-                      borderRadius: '9999px',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      backgroundColor: emp.riskLevel === 'HIGH' ? '#fef2f2' :
-                                     emp.riskLevel === 'MEDIUM' ? '#fffbeb' : '#f0fdf4',
-                      color: emp.riskLevel === 'HIGH' ? '#991b1b' :
-                            emp.riskLevel === 'MEDIUM' ? '#92400e' : '#065f46'
-                    }}>
-                      {emp.riskLevel || 'LOW'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#1e293b' }}>
-                    {emp.riskScore ? `${emp.riskScore}%` : '0%'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div style={{ 
-        marginTop: '24px', 
-        padding: '20px', 
-        backgroundColor: '#eff6ff', 
-        borderRadius: '8px',
-        border: '1px solid #bfdbfe'
-      }}>
-        <p style={{ color: '#1e40af', marginBottom: '8px', fontWeight: '500' }}>
-          <Database size={16} style={{ verticalAlign: 'middle', marginRight: '8px' }} />
-          API Status: {employees.length > 0 ? 'Connected to MongoDB' : 'Using fallback data'}
-        </p>
-        <p style={{ color: '#374151', fontSize: '14px' }}>
-          {employees.length > 0 
-            ? `Successfully loaded ${employees.length} employees from database.`
-            : 'Could not connect to database. Showing sample data.'}
-        </p>
+        ))}
       </div>
     </div>
   );
