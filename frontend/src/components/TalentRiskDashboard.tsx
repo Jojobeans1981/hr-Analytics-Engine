@@ -1,16 +1,35 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    Users, TrendingUp, TrendingDown, Plus, X, AlertTriangle, Briefcase, Smile, Gauge, Edit,
-    Zap, Calendar, Clock, BarChart3, ChevronDown, ChevronUp, ScrollText, Code, Database
+    Users, AlertTriangle, Database
 } from 'lucide-react';
 
 // --- API CONFIGURATION ---
 // Use relative path for Vercel deployment
 const API_BASE_URL = '/api';
 
+// Types
+interface Employee {
+  _id: string;
+  name: string;
+  department: string;
+  riskScore: number;
+  riskLevel: 'HIGH' | 'MEDIUM' | 'LOW';
+}
+
+interface Metrics {
+  totalEmployees: number;
+  avgRiskScore: number;
+  highRiskEmployees: number;
+  riskDistribution: {
+    high: number;
+    medium: number;
+    low: number;
+  };
+}
+
 // --- API SERVICE FUNCTIONS ---
 const apiService = {
-    async getEmployees() {
+    async getEmployees(): Promise<Employee[]> {
         try {
             const response = await fetch(`${API_BASE_URL}/employees`, {
                 headers: { 'Content-Type': 'application/json' },
@@ -23,21 +42,7 @@ const apiService = {
         }
     },
 
-    async getHighRiskEmployees(threshold = 70) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/employees/high-risk?threshold=${threshold}`, {
-                headers: { 'Content-Type': 'application/json' },
-            });
-            if (!response.ok) throw new Error(`API error: ${response.status}`);
-            const result = await response.json();
-            return result.data || [];
-        } catch (error) {
-            console.error('Error fetching high-risk employees:', error);
-            return [];
-        }
-    },
-
-    async getRiskMetrics() {
+    async getRiskMetrics(): Promise<Metrics> {
         try {
             const response = await fetch(`${API_BASE_URL}/dashboard/metrics`, {
                 headers: { 'Content-Type': 'application/json' },
@@ -46,17 +51,20 @@ const apiService = {
             return await response.json();
         } catch (error) {
             console.error('Error fetching metrics:', error);
-            return null;
+            // Return default metrics
+            return {
+                totalEmployees: 0,
+                avgRiskScore: 0,
+                highRiskEmployees: 0,
+                riskDistribution: { high: 0, medium: 0, low: 0 }
+            };
         }
     }
 };
 
-// ... I need the rest of your component ...
-// For now, let me create a simplified but styled version
-
 const TalentRiskDashboard = () => {
-  const [employees, setEmployees] = useState([]);
-  const [metrics, setMetrics] = useState(null);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -92,6 +100,19 @@ const TalentRiskDashboard = () => {
       </div>
     );
   }
+
+  const displayMetrics = metrics || {
+    totalEmployees: employees.length,
+    avgRiskScore: employees.length > 0 
+      ? employees.reduce((sum, emp) => sum + (emp.riskScore || 0), 0) / employees.length
+      : 0,
+    highRiskEmployees: employees.filter(emp => emp.riskLevel === 'HIGH').length,
+    riskDistribution: {
+      high: employees.filter(emp => emp.riskLevel === 'HIGH').length,
+      medium: employees.filter(emp => emp.riskLevel === 'MEDIUM').length,
+      low: employees.filter(emp => emp.riskLevel === 'LOW').length
+    }
+  };
 
   return (
     <div style={{ 
@@ -136,7 +157,7 @@ const TalentRiskDashboard = () => {
             <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#64748b' }}>Total Employees</h3>
           </div>
           <div style={{ fontSize: '36px', fontWeight: '700', color: '#1e293b' }}>
-            {metrics?.totalEmployees || employees.length}
+            {displayMetrics.totalEmployees}
           </div>
         </div>
 
@@ -151,22 +172,22 @@ const TalentRiskDashboard = () => {
             <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#64748b' }}>Average Risk</h3>
           </div>
           <div style={{ fontSize: '36px', fontWeight: '700', color: '#1e293b' }}>
-            {metrics?.avgRiskScore ? `${Math.round(metrics.avgRiskScore)}%` : '0%'}
+            {Math.round(displayMetrics.avgRiskScore)}%
           </div>
           <div style={{ 
             marginTop: '8px',
             padding: '4px 12px',
-            backgroundColor: metrics?.avgRiskScore > 70 ? '#fef2f2' : 
-                           metrics?.avgRiskScore > 40 ? '#fffbeb' : '#f0fdf4',
-            color: metrics?.avgRiskScore > 70 ? '#991b1b' : 
-                   metrics?.avgRiskScore > 40 ? '#92400e' : '#065f46',
+            backgroundColor: displayMetrics.avgRiskScore > 70 ? '#fef2f2' : 
+                           displayMetrics.avgRiskScore > 40 ? '#fffbeb' : '#f0fdf4',
+            color: displayMetrics.avgRiskScore > 70 ? '#991b1b' : 
+                   displayMetrics.avgRiskScore > 40 ? '#92400e' : '#065f46',
             borderRadius: '9999px',
             fontSize: '14px',
             fontWeight: '500',
             display: 'inline-block'
           }}>
-            {metrics?.avgRiskScore > 70 ? 'High Risk' : 
-             metrics?.avgRiskScore > 40 ? 'Medium Risk' : 'Low Risk'}
+            {displayMetrics.avgRiskScore > 70 ? 'High Risk' : 
+             displayMetrics.avgRiskScore > 40 ? 'Medium Risk' : 'Low Risk'}
           </div>
         </div>
       </div>
