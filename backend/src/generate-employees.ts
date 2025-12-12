@@ -154,11 +154,16 @@ function determineRiskLevel(): 'high' | 'medium' | 'low' {
   return 'low';
 }
 
-function generateEmployeeData(riskLevel: 'high' | 'medium' | 'low'): Partial<IEmployee> {
+function generateEmployeeData(riskLevel: 'high' | 'medium' | 'low', existingIds: Set<string>): Partial<IEmployee> {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
   const email = faker.internet.email({ firstName, lastName, provider: 'company.com' });
-  const employeeId = `EMP${1000 + Math.floor(Math.random() * 9000)}`;
+  
+  let employeeId: string;
+  do {
+    employeeId = `EMP${1000 + Math.floor(Math.random() * 9000)}`;
+  } while (existingIds.has(employeeId));
+  existingIds.add(employeeId);
   
   const { criticalSkills, skillGaps } = generateSkills();
   
@@ -221,7 +226,7 @@ function generateEmployeeData(riskLevel: 'high' | 'medium' | 'low'): Partial<IEm
 
 async function seedDatabase() {
   try {
-    console.log('í´— Connecting to MongoDB...');
+    console.log('ï¿½ï¿½ï¿½ Connecting to MongoDB...');
     await mongoose.connect(MONGODB_URI);
     console.log('âœ… Connected to MongoDB');
     
@@ -229,24 +234,25 @@ async function seedDatabase() {
     const { Employee } = await import('./models/employee.model');
     
     // Clear existing data
-    console.log('í·‘ï¸  Clearing existing employees...');
+    console.log('ï¿½ï¿½ï¿½ï¸  Clearing existing employees...');
     await Employee.deleteMany({});
     console.log('âœ… Cleared existing employees');
     
     // Generate employees based on configured distribution
-    console.log(`í±¥ Generating ${CONFIG.TOTAL_EMPLOYEES} employees with distribution:`);
+    console.log(`ï¿½ï¿½ï¿½ Generating ${CONFIG.TOTAL_EMPLOYEES} employees with distribution:`);
     console.log(`   High Risk: ${CONFIG.RISK_DISTRIBUTION.HIGH * 100}%`);
     console.log(`   Medium Risk: ${CONFIG.RISK_DISTRIBUTION.MEDIUM * 100}%`);
     console.log(`   Low Risk: ${CONFIG.RISK_DISTRIBUTION.LOW * 100}%`);
     
     const employees: any[] = [];
     const riskCounts = { high: 0, medium: 0, low: 0 };
+    const existingIds = new Set<string>();
     
     for (let i = 0; i < CONFIG.TOTAL_EMPLOYEES; i++) {
       const riskLevel = determineRiskLevel();
       riskCounts[riskLevel]++;
       
-      const employeeData = generateEmployeeData(riskLevel);
+      const employeeData = generateEmployeeData(riskLevel, existingIds);
       employees.push(employeeData);
       
       // Show progress
@@ -255,13 +261,13 @@ async function seedDatabase() {
       }
     }
     
-    console.log('\ní³Š Risk distribution generated:');
+    console.log('\nï¿½ï¿½ï¿½ Risk distribution generated:');
     console.log(`   High Risk: ${riskCounts.high} employees`);
     console.log(`   Medium Risk: ${riskCounts.medium} employees`);
     console.log(`   Low Risk: ${riskCounts.low} employees`);
     
     // Insert in batches
-    console.log('í²¾ Saving to database...');
+    console.log('ï¿½ï¿½ï¿½ Saving to database...');
     const batchSize = 50;
     for (let i = 0; i < employees.length; i += batchSize) {
       const batch = employees.slice(i, i + batchSize);
@@ -270,8 +276,8 @@ async function seedDatabase() {
     }
     
     console.log('\nâœ… Database seeded successfully!');
-    console.log(`\ní¾‰ Generated ${CONFIG.TOTAL_EMPLOYEES} employees with realistic risk profiles.`);
-    console.log(`í³ˆ You can now test your Talent Risk AI dashboard with varied data.`);
+    console.log(`\nï¿½ï¿½ï¿½ Generated ${CONFIG.TOTAL_EMPLOYEES} employees with realistic risk profiles.`);
+    console.log(`ï¿½ï¿½ï¿½ You can now test your Talent Risk AI dashboard with varied data.`);
     
     // Verify counts
     const totalCount = await Employee.countDocuments();
@@ -279,7 +285,7 @@ async function seedDatabase() {
     const mediumRiskCount = await Employee.countDocuments({ riskLevel: 'medium' });
     const lowRiskCount = await Employee.countDocuments({ riskLevel: 'low' });
     
-    console.log('\ní³‹ Final counts:');
+    console.log('\nï¿½ï¿½ï¿½ Final counts:');
     console.log(`   Total: ${totalCount}`);
     console.log(`   High Risk: ${highRiskCount} (${((highRiskCount/totalCount)*100).toFixed(1)}%)`);
     console.log(`   Medium Risk: ${mediumRiskCount} (${((mediumRiskCount/totalCount)*100).toFixed(1)}%)`);
