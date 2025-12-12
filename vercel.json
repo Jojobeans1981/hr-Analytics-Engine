@@ -4,11 +4,3 @@
   "installCommand": "cd frontend && npm install --legacy-peer-deps",
   "framework": "create-react-app"
 }
-EOFcd ~/Desktop/talent-risk-ai
-cat > vercel.json << 'EOF'
-{
-  "buildCommand": "cd frontend && npm run build",
-  "outputDirectory": "frontend/build",
-  "installCommand": "cd frontend && npm install --legacy-peer-deps",
-  "framework": "create-react-app"
-}
