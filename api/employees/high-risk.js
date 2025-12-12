@@ -1,16 +1,12 @@
 import { MongoClient } from 'mongodb';
 
 const MONGODB_URI = process.env.MONGODB_URI;
-if (!MONGODB_URI) {
-  throw new Error('MONGODB_URI environment variable is not defined');
-}
-const MONGODB_DB = process.env.MONGODB_DB || 'talent-risk';
 const MONGODB_DB = process.env.MONGODB_DB || 'talent-risk';
 
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   // Handle preflight
@@ -22,38 +18,49 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
+  const threshold = parseInt(req.query.threshold) || 70;
+  
   let client;
   
   try {
     client = await MongoClient.connect(MONGODB_URI);
     const db = client.db(MONGODB_DB);
-    const employees = await db.collection('employees').find({}).toArray();
     
-    res.status(200).json(employees);
+    const highRiskEmployees = await db.collection('employees')
+      .find({ riskScore: { $gte: threshold } })
+      .toArray();
+    
+    res.status(200).json({
+      data: highRiskEmployees,
+      count: highRiskEmployees.length,
+      threshold
+    });
+    
   } catch (error) {
-    console.error('Error:', error);
-    // Return mock data if database fails
-    const mockEmployees = [
+    console.error('Error fetching high-risk employees:', error);
+    // Return mock data
+    const mockHighRisk = [
       {
         _id: '1',
         name: 'John Doe',
         department: 'Engineering',
-        riskScore: 75,
-        riskLevel: 'HIGH',
-        performanceScore: 4.2,
-        engagementScore: 78
+        riskScore: 85,
+        riskLevel: 'HIGH'
       },
       {
-        _id: '2',
-        name: 'Jane Smith',
-        department: 'Sales',
-        riskScore: 45,
-        riskLevel: 'MEDIUM',
-        performanceScore: 2.8,
-        engagementScore: 60
+        _id: '4',
+        name: 'Sarah Wilson',
+        department: 'Marketing',
+        riskScore: 78,
+        riskLevel: 'HIGH'
       }
-    ];
-    res.status(200).json(mockEmployees);
+    ].filter(emp => emp.riskScore >= threshold);
+    
+    res.status(200).json({
+      data: mockHighRisk,
+      count: mockHighRisk.length,
+      threshold
+    });
   } finally {
     if (client) await client.close();
   }
