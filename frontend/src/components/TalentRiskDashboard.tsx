@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
 
+// Define the Employee type
+interface Employee {
+  id: number;
+  name: string;
+  department: string;
+  riskScore: number;
+  riskLevel: string;
+}
+
 const API_BASE_URL = '/api';
 
 const TalentRiskDashboard = () => {
-  const [employees, setEmployees] = useState([]);
+  // Type the state properly
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,10 +24,11 @@ const TalentRiskDashboard = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/test`);
       const data = await response.json();
+      // Make sure data has the right structure
       setEmployees(data.data || []);
     } catch (error) {
       console.error('Error:', error);
-      // Fallback mock data
+      // Fallback mock data with correct typing
       setEmployees([
         { id: 1, name: 'John Doe', department: 'Engineering', riskScore: 75, riskLevel: 'HIGH' },
         { id: 2, name: 'Jane Smith', department: 'Sales', riskScore: 45, riskLevel: 'MEDIUM' },
