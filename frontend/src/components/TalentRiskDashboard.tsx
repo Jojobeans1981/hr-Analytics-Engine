@@ -250,7 +250,7 @@ const TalentRiskDashboard = () => {
             <Users className="text-blue-400 mr-3" size={24} />
             <h3 className="text-gray-400">Total Employees</h3>
           </div>
-          <div className="text-3xl font-bold">{employees.length}</div>
+          <div className="text-3xl font-bold">{employees.data.length}</div>
         </div>
 
         <div className="bg-gray-800 rounded-xl p-6">
@@ -259,7 +259,7 @@ const TalentRiskDashboard = () => {
             <h3 className="text-gray-400">High Risk</h3>
           </div>
           <div className="text-3xl font-bold text-red-400">
-            {employees.filter(e => e.riskLevel === 'HIGH').length}
+            {employees.data.filter(e => e.riskLevel === 'HIGH').length}
           </div>
         </div>
 
@@ -269,7 +269,7 @@ const TalentRiskDashboard = () => {
             <h3 className="text-gray-400">Avg Risk Score</h3>
           </div>
           <div className="text-3xl font-bold">
-            {Math.round(employees.reduce((sum, emp) => sum + (emp.riskScore || 0), 0) / employees.length || 0)}%
+            {Math.round(employees.data.reduce((sum, emp) => sum + (emp.riskScore || 0), 0) / employees.data.length || 0)}%
           </div>
         </div>
 
@@ -279,7 +279,7 @@ const TalentRiskDashboard = () => {
             <h3 className="text-gray-400">Avg Engagement</h3>
           </div>
           <div className="text-3xl font-bold text-green-400">
-            {Math.round(employees.reduce((sum, emp) => sum + (emp.engagement || 0), 0) / employees.length || 0)}%
+            {Math.round(employees.data.reduce((sum, emp) => sum + (emp.engagement || 0), 0) / employees.data.length || 0)}%
           </div>
         </div>
       </div>
@@ -289,7 +289,7 @@ const TalentRiskDashboard = () => {
         <div className="p-6 border-b border-gray-700">
           <h2 className="text-xl font-semibold">Employee Risk Assessment</h2>
           <p className="text-gray-400 text-sm mt-1">
-            Showing {employees.length} employees • Click any row for details
+            Showing {employees.data.length} employees • Click any row for details
           </p>
         </div>
 
@@ -305,7 +305,7 @@ const TalentRiskDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {employees.map(emp => (
+              {employees.data.map(emp => (
                 <tr key={emp.id} className="border-b border-gray-700 hover:bg-gray-750 cursor-pointer">
                   <td className="p-4">
                     <div className="font-medium">{emp.name}</div>
@@ -349,7 +349,7 @@ const TalentRiskDashboard = () => {
             </p>
             <p className="text-sm opacity-80 mt-1">
               {connectionStatus === 'connected' 
-                ? `Successfully loaded ${employees.length} employees from your database.`
+                ? `Successfully loaded ${employees.data.length} employees from your database.`
                 : 'To connect to your MongoDB database, add MONGODB_URI to Vercel environment variables.'}
             </p>
           </div>
