@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/Prometheus', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/talent-risk', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -23,11 +23,11 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/Prometheu
   // Test the connection
   const Employee = require('./models/Employee');
   const count = await Employee.countDocuments();
-  console.log(`í³Š Found ${count} employees in the database`);
+  console.log(`ï¿½ï¿½ï¿½ Found ${count} employees in the database`);
   
   if (count > 0) {
     const sample = await Employee.findOne();
-    console.log(`í±¤ Sample employee: ${sample.name} - ${sample.department} - ${sample.riskScore}%`);
+    console.log(`ï¿½ï¿½ï¿½ Sample employee: ${sample.name} - ${sample.department} - ${sample.riskScore}%`);
   }
 })
 .catch(err => {
@@ -71,5 +71,5 @@ app.use('*', (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`íº€ Server running on port ${PORT}`);
+  console.log(`ï¿½ï¿½ï¿½ Server running on port ${PORT}`);
 });
