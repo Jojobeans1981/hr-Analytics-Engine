@@ -1,0 +1,177 @@
+Part 1: Exact Bash Commands for Vite Migration
+⚠️ First, create a backup of your entire project before starting.
+
+bash
+cd /c/Users/jlpan/Desktop/talent-risk-ai
+cp -r frontend frontend-CRA-backup-$(date +%Y%m%d)
+Now, execute these commands exactly in order from your project root:
+
+bash
+# 1. Navigate to frontend and capture exact dependencies
+cd /c/Users/jlpan/Desktop/talent-risk-ai/frontend
+npm list --depth=0 > ../frontend-dependencies-backup.txt
+cat package.json > ../package-json-backup.json
+
+# 2. Create a new Vite project in a temporary directory (same parent directory)
+cd /c/Users/jlpan/Desktop/talent-risk-ai
+npm create vite@latest frontend-vite -- --template react-ts
+
+# 3. Copy ALL source files from old CRA to new Vite (preserving everything)
+cp -r frontend/src/* frontend-vite/src/
+cp frontend/public/* frontend-vite/public/ 2>/dev/null || true
+
+# 4. Copy critical configuration files
+cp frontend/.env frontend-vite/.env 2>/dev/null || true
+cp frontend/.env.production frontend-vite/.env.production 2>/dev/null || true
+cp frontend/.gitignore frontend-vite/.gitignore 2>/dev/null || true
+
+# 5. Install additional dependencies from your CRA project
+cd frontend-vite
+npm install
+# Install exact dependencies you were using in CRA (check your backup file)
+npm install http-proxy-middleware axios react-router-dom @types/react @types/react-dom
+
+# 6. Set up Vite proxy (replaces setupProxy.js)
+cat > vite.config.ts << 'EOF'
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false
+      }
+    }
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: true
+  }
+})
+EOF
+
+# 7. Fix TypeScript/React imports (Vite is stricter)
+# This converts .js/.jsx imports to .ts/.tsx where needed
+find src -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) \
+  -exec sed -i 's/\.jsx\?/\.tsx/g' {} \; \
+  -exec sed -i 's/from "react-app-env\.d\.ts"/\/\/ from "react-app-env.d.ts" removed for Vite/g' {} \;
+
+# 8. Create a proper env.d.ts for Vite
+cat > src/env.d.ts << 'EOF'
+/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_APP_API_URL: string
+  readonly VITE_APP_TITLE: string
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+EOF
+
+# 9. Update environment variables to Vite prefix
+sed -i 's/REACT_APP_/VITE_/g' .env .env.production 2>/dev/null || true
+sed -i 's/REACT_APP_/VITE_/g' src/**/*.{ts,tsx,js,jsx} 2>/dev/null || true
+
+# 10. Fix index.html to include correct root div
+sed -i 's/<div id="root"><\/div>/<div id="root"><\/div>/' index.html
+
+# 11. Test the build
+npm run build
+
+# 12. If build succeeds, replace old frontend with new Vite version
+cd /c/Users/jlpan/Desktop/talent-risk-ai
+rm -rf frontend && mv frontend-vite frontend
+
+echo "✅ Migration complete. Start dev server with: cd frontend && npm run dev"
+Part 2: Continuation Prompt for Future AI Context
+Here is the exact text prompt to provide to any language model for continuing this project:
+
+text
+CONTINUATION PROMPT - PROMETHEUS TALENT RISK ANALYTICS ENGINE
+
+PROJECT STATUS AS OF DEC 14, 2025:
+- Full-stack HR analytics dashboard with AI risk prediction
+- Successfully migrated from Create React App to Vite (completed today)
+- Frontend: React/TypeScript with Vite build system
+- Backend: Node.js/Express with TypeScript, hosted separately
+- Database: MongoDB Atlas cluster "talent-risk" database
+- Deployment: Frontend on Vercel, Backend needs deployment (Render.com recommended)
+
+CRITICAL TECHNICAL CONTEXT:
+
+1. **FRONTEND (Vite/React)**: 
+   - Port: 3000 (was 3000 in CRA, remains 3000)
+   - Proxy: Vite proxy configured in vite.config.ts (not setupProxy.js)
+   - API calls use: `${import.meta.env.VITE_APP_API_URL}/api/endpoint`
+   - Environment variables: VITE_ prefixed (was REACT_APP_)
+   - CSS: Custom EmployeeDashboard.css with professional styling
+   - Main component: TalentRiskDashboard.tsx with risk visualization
+
+2. **BACKEND (Node.js/Express)**:
+   - Port: 3001 (connected to MongoDB Atlas)
+   - Database: "talent-risk", collection: "employees"
+   - Connection string: mongodb+srv://username:password@Prometheus.inv2hx4.mongodb.net/talent-risk
+   - Critical fix: employeeController.js query was `{ status: 'Active' }` filtering out all data
+   - Current fix: query is `{}` (no status filter) and uses direct collection access
+   - API returns: { success: boolean, count: number, data: Employee[] }
+
+3. **DATABASE**:
+   - 5 sample employees seeded via seed-mongodb.cjs
+   - Dynamic seed script available (creates customizable employees)
+   - Fields: employeeId, name, department, riskScore, riskLevel, tenureMonths, etc.
+   - Risk levels: HIGH, MEDIUM, LOW (uppercase in database)
+
+4. **RECENT ISSUES RESOLVED**:
+   - Proxy error: CRA setupProxy.js targeting port 5000, backend on 3001 → Fixed with Vite proxy
+   - MongoDB connection: Was connecting to localhost instead of Atlas → Fixed in backend .env
+   - React error: "employees.filter is not a function" → Fixed in TalentRiskDashboard.tsx to use `employees.data.filter`
+   - CORS: Backend configured for frontend origin
+   - API returning count:0 → Fixed status filter in employeeController.js
+
+5. **NEXT IMMEDIATE STEPS REQUIRED**:
+   - Deploy backend to Render.com (free tier)
+   - Update frontend VITE_APP_API_URL to point to deployed backend
+   - Redeploy frontend to Vercel
+   - Change MongoDB Atlas password (exposed in seed-mongodb.cjs and .env files)
+   - Consider adding authentication/authorization
+
+6. **PROJECT STRUCTURE**:
+   talent-risk-ai/
+   ├── frontend/ (Vite/React)
+   │   ├── src/
+   │   │   ├── components/TalentRiskDashboard.tsx (main dashboard)
+   │   │   ├── EmployeeDashboard.css (styling)
+   │   │   └── services/ (API calls)
+   │   ├── vite.config.ts (proxy: localhost:3001)
+   │   └── package.json
+   ├── backend/ (Node.js/Express)
+   │   ├── controllers/employeeController.js (fixed query)
+   │   ├── server.js (port 3001)
+   │   └── .env (MONGODB_URI to Atlas)
+   ├── api/ (TypeScript backend alternative)
+   └── seed-mongodb.cjs (dynamic employee generator)
+
+FUNCTIONALITY PRESERVATION GUARANTEE:
+- All API endpoints: /api/health, /api/employees, /api/employees/:id, /api/risk, /api/dashboard
+- Real-time WebSocket support (ws://localhost:5000) configured but needs testing
+- Risk calculation algorithm intact (performance, tenure, engagement, compensation, skills)
+- Dashboard displays: Total employees, High risk count, Average risk score, Employee table
+- Filtering by department and risk level available
+- Database seeding with sample data working
+
+DO NOT:
+- Revert to CRA or setupProxy.js
+- Add status filter back to employee queries
+- Change the MongoDB connection from Atlas to localhost
+- Break the fixed TalentRiskDashboard.tsx component (uses employees.data not employees)
+
+CONTINUE DEVELOPMENT WITH THESE SPECIFICATIONS.
+This prompt captures every piece of context about your project's current state, fixes applied, and exact technical specifications for seamless continuation.
+
