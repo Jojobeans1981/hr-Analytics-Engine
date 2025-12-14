@@ -1,7 +1,7 @@
 const { MongoClient } = require('mongodb');
 
 // Replace <YOUR_PASSWORD> with your actual MongoDB password
-const MONGODB_URI = 'mongodb+srv://jojobeans1981:Wookie2011@prometheus.inv2hx4.mongodb.net/talent-risk?retryWrites=true&w=majority';
+const MONGODB_URI = 'mongodb+srv://jlpanetta1681:Wookie2011@prometheus.inv2hx4.mongodb.net/talent-risk?retryWrites=true&w=majority';
 const MONGODB_DB = 'talent-risk';
 
 const sampleEmployees = [
