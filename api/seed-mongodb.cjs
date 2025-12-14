@@ -1,172 +1,130 @@
 const { MongoClient } = require('mongodb');
 
-// Replace <YOUR_PASSWORD> with your actual MongoDB password
-const MONGODB_URI = 'mongodb+srv://jojobeans1981:Wookie2011@prometheus.inv2hx4.mongodb.net/talent-risk?retryWrites=true&w=majority';
-const MONGODB_DB = 'talent-risk';
+// ======================
+// CONFIGURATION
+// ======================
+const CONFIG = {
+  MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://jlpanetta1681:Wookie2011@prometheus.inv2hx4.mongodb.net/talent-risk?retryWrites=true&w=majority',
+  DB_NAME: 'talent-risk',
+  TOTAL_EMPLOYEES: 50,
+  CLEAR_EXISTING: true,
+  DEPARTMENTS: ['Engineering', 'Product', 'Design', 'Marketing', 'Sales', 'HR'],
+  LOCATIONS: ['San Francisco', 'New York', 'Remote', 'Austin', 'Seattle']
+};
 
-const sampleEmployees = [
-  {
-    employeeId: 'EMP001',
-    name: 'Johnathan Davis',
-    email: 'john.davis@techcorp.com',
-    role: 'Senior Software Engineer',
-    department: 'Engineering',
-    tenure: 42, // months
-    performanceScore: 4.7,
-    engagementScore: 92,
-    assessmentScore: 88,
-    riskScore: 68,
-    riskLevel: 'HIGH',
-    skills: ['React', 'Node.js', 'TypeScript', 'AWS', 'Docker'],
-    riskFactors: [
-      'High market demand for skills',
-      'Limited upward mobility',
-      'Last promotion: 24+ months ago'
-    ],
-    hireDate: '2021-03-15',
-    lastPromotion: '2023-01-10',
-    salaryBand: 'L5',
-    location: 'San Francisco'
-  },
-  {
-    employeeId: 'EMP002',
-    name: 'Sarah Chen',
-    email: 'sarah.chen@techcorp.com',
-    role: 'Product Manager',
-    department: 'Product',
-    tenure: 28,
-    performanceScore: 4.2,
-    engagementScore: 85,
-    assessmentScore: 76,
-    riskScore: 42,
-    riskLevel: 'MEDIUM',
-    skills: ['Product Strategy', 'Agile', 'User Research', 'Data Analysis'],
-    riskFactors: [
-      'Recent role change',
-      'High workload stress indicators'
-    ],
-    hireDate: '2022-08-10',
-    lastPromotion: '2024-01-15',
-    salaryBand: 'L4',
-    location: 'New York'
-  },
-  {
-    employeeId: 'EMP003',
-    name: 'Michael Rodriguez',
-    email: 'michael.r@techcorp.com',
-    role: 'DevOps Engineer',
-    department: 'Platform',
-    tenure: 18,
-    performanceScore: 3.8,
-    engagementScore: 78,
-    assessmentScore: 82,
-    riskScore: 35,
-    riskLevel: 'MEDIUM',
-    skills: ['Kubernetes', 'Terraform', 'Python', 'CI/CD'],
-    riskFactors: [
-      'Short tenure (<2 years)',
-      'Rapid promotion trajectory'
-    ],
-    hireDate: '2023-06-22',
-    lastPromotion: '2024-06-22',
-    salaryBand: 'L3',
-    location: 'Remote'
-  },
-  {
-    employeeId: 'EMP004',
-    name: 'Jessica Williams',
-    email: 'jessica.w@techcorp.com',
-    role: 'UX Designer',
-    department: 'Design',
-    tenure: 60,
-    performanceScore: 4.9,
-    engagementScore: 94,
-    assessmentScore: 91,
-    riskScore: 18,
-    riskLevel: 'LOW',
-    skills: ['Figma', 'User Testing', 'Prototyping', 'Design Systems'],
-    riskFactors: [
-      'High performer - retention concern'
-    ],
-    hireDate: '2019-11-05',
-    lastPromotion: '2024-03-20',
-    salaryBand: 'L5',
-    location: 'Austin'
-  },
-  {
-    employeeId: 'EMP005',
-    name: 'David Kim',
-    email: 'david.kim@techcorp.com',
-    role: 'Data Scientist',
-    department: 'Analytics',
-    tenure: 9,
-    performanceScore: 3.2,
-    engagementScore: 65,
-    assessmentScore: 70,
-    riskScore: 72,
-    riskLevel: 'HIGH',
-    skills: ['Python', 'SQL', 'Machine Learning', 'Statistics'],
-    riskFactors: [
-      'Low performance score',
-      'Short tenure',
-      'Low engagement metrics'
-    ],
-    hireDate: '2024-03-15',
-    lastPromotion: null,
-    salaryBand: 'L2',
-    location: 'Seattle'
-  }
-];
+// ======================
+// GENERATE EMPLOYEE
+// ======================
+function generateEmployee(id) {
+  const firstNames = ['John','Sarah','Mike','Jessica','David','Alex','Maria','James','Lisa','Robert'];
+  const lastNames = ['Smith','Johnson','Williams','Brown','Jones','Garcia','Davis','Rodriguez','Lee','Wilson'];
+  const roles = {
+    Engineering: ['Dev','Senior Dev','Lead','Architect','Manager'],
+    Product: ['PM','Senior PM','Director','Analyst'],
+    Design: ['UX','UI','Product Designer','Research'],
+    Marketing: ['Specialist','Manager','Analyst','Director'],
+    Sales: ['Rep','Manager','Director','VP'],
+    HR: ['Generalist','Manager','Recruiter','Director']
+  };
 
+  const firstName = firstNames[id % firstNames.length];
+  const lastName = lastNames[id % lastNames.length];
+  const department = CONFIG.DEPARTMENTS[Math.floor(Math.random() * CONFIG.DEPARTMENTS.length)];
+  const roleList = roles[department];
+  const role = roleList[Math.floor(Math.random() * roleList.length)];
+  
+  const tenure = Math.floor(Math.random() * 60) + 6;
+  const performance = (Math.random() * 3) + 2;
+  const engagement = Math.floor(Math.random() * 40) + 60;
+  
+  let riskScore = 0;
+  riskScore += (tenure < 12) ? 25 : 0;
+  riskScore += (performance < 3.0) ? 30 : 0;
+  riskScore += (engagement < 70) ? 20 : 0;
+  riskScore += Math.random() * 25;
+  riskScore = Math.min(100, Math.max(0, riskScore));
+  
+  const riskLevel = riskScore > 70 ? 'HIGH' : riskScore > 40 ? 'MEDIUM' : 'LOW';
+
+  return {
+    employeeId: `EMP${String(id + 1).padStart(3, '0')}`,
+    name: `${firstName} ${lastName}`,
+    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@techcorp.com`,
+    department: department,
+    role: `${department} ${role}`,
+    tenureMonths: tenure,
+    performanceRating: parseFloat(performance.toFixed(1)),
+    engagementScore: engagement,
+    riskScore: Math.round(riskScore),
+    riskLevel: riskLevel,
+    location: CONFIG.LOCATIONS[Math.floor(Math.random() * CONFIG.LOCATIONS.length)],
+    hireDate: new Date(Date.now() - tenure * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    criticalSkills: ['JavaScript','Python','React','Node.js','AWS','SQL','Communication','Leadership'].slice(0, 3 + (id % 3)),
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+}
+
+// ======================
+// MAIN SEED FUNCTION
+// ======================
 async function seedDatabase() {
   let client;
-  
   try {
-    console.log('��� Connecting to MongoDB...');
-    client = await MongoClient.connect(MONGODB_URI);
-    const db = client.db(MONGODB_DB);
+    console.log('🔌 Connecting to MongoDB...');
+    client = await MongoClient.connect(CONFIG.MONGODB_URI);
+    const db = client.db(CONFIG.DB_NAME);
     
-    // Check if employees collection exists
-    const collections = await db.listCollections({ name: 'employees' }).toArray();
-    
-    if (collections.length > 0) {
-      console.log('���️  Clearing existing employees...');
+    if (CONFIG.CLEAR_EXISTING) {
+      console.log('🗑️  Clearing existing employees...');
       await db.collection('employees').deleteMany({});
     }
     
-    console.log('��� Seeding database with sample employees...');
-    const result = await db.collection('employees').insertMany(sampleEmployees);
+    console.log(`🌱 Generating ${CONFIG.TOTAL_EMPLOYEES} employees...`);
+    const employees = [];
+    for (let i = 0; i < CONFIG.TOTAL_EMPLOYEES; i++) {
+      employees.push(generateEmployee(i));
+    }
+    
+    console.log('📥 Inserting into database...');
+    const result = await db.collection('employees').insertMany(employees);
     
     console.log(`✅ Successfully seeded ${result.insertedCount} employees!`);
-    console.log('��� Sample data includes:');
-    sampleEmployees.forEach(emp => {
-      console.log(`   - ${emp.name} (${emp.department}): ${emp.riskScore}% risk - ${emp.riskLevel}`);
+    console.log('\n👥 Sample:');
+    employees.slice(0, 3).forEach(emp => {
+      console.log(`   • ${emp.name} - ${emp.department} - ${emp.riskScore}% (${emp.riskLevel})`);
     });
     
-    // Create indexes for better query performance
-    await db.collection('employees').createIndex({ employeeId: 1 }, { unique: true });
-    await db.collection('employees').createIndex({ department: 1 });
-    await db.collection('employees').createIndex({ riskLevel: 1 });
-    await db.collection('employees').createIndex({ riskScore: -1 });
+    await db.collection('employees').createIndexes([
+      { key: { employeeId: 1 }, unique: true },
+      { key: { department: 1 } },
+      { key: { riskLevel: 1 } },
+      { key: { riskScore: -1 } }
+    ]);
     
-    console.log('��� Created database indexes for optimal performance.');
+    console.log('📊 Indexes created.');
     
   } catch (error) {
-    console.error('❌ Error seeding database:', error.message);
-    if (error.code === 'ENOTFOUND') {
-      console.error('   Check your MongoDB connection string and network access.');
-    }
+    console.error('❌ Error:', error.message);
   } finally {
     if (client) {
       await client.close();
-      console.log('��� MongoDB connection closed.');
+      console.log('🔌 Connection closed.');
     }
-    console.log('\n��� Next steps:');
-    console.log('1. Update your Vercel environment variables with MONGODB_URI');
-    console.log('2. Redeploy: vercel --prod');
-    console.log('3. Visit your dashboard to see real data!');
   }
 }
 
-// Run the seed function
+// ======================
+// RUN WITH ARGS
+// ======================
+const args = process.argv.slice(2);
+if (args.includes('--count')) {
+  const countIndex = args.indexOf('--count');
+  if (args[countIndex + 1]) {
+    CONFIG.TOTAL_EMPLOYEES = parseInt(args[countIndex + 1]);
+    console.log(`📊 Setting count to: ${CONFIG.TOTAL_EMPLOYEES}`);
+  }
+}
+if (args.includes('--keep')) CONFIG.CLEAR_EXISTING = false;
+
 seedDatabase();

@@ -10,7 +10,8 @@ const {
 } = require('../controllers/employeeController');
 
 // GET /api/employees
-router.get('/', getEmployees);
+router.get('/', getEmployees); hello lucas
+
 
 // GET /api/employees/stats/summary
 router.get('/stats/summary', getEmployeeStats);

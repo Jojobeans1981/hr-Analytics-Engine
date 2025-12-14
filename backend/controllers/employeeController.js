@@ -1,5 +1,4 @@
 const Employee = require('../models/Employee');
-
 // Helper to map database fields to API response
 function formatEmployeeResponse(employee) {
   return {
@@ -27,7 +26,6 @@ function formatEmployeeResponse(employee) {
     updatedAt: employee.updatedAt
   };
 }
-
 // @desc    Get all employees
 // @route   GET /api/employees
 // @access  Public
@@ -36,11 +34,10 @@ exports.getEmployees = async (req, res) => {
     const { department, riskLevel, status = 'Active', sortBy = 'riskScore', order = 'desc' } = req.query;
     
     // Build query
-    let query = { status };
+    let query = {};
     if (department) query.department = department;
-    if (riskLevel) query.riskLevel = riskLevel.toLowerCase(); // Convert to lowercase
-    
-    // Build sort
+    if (riskLevel) query.riskLevel = riskLevel;
+  // Build sort
     const sortOrder = order === 'asc' ? 1 : -1;
     const sort = { [sortBy]: sortOrder };
     
@@ -62,7 +59,6 @@ exports.getEmployees = async (req, res) => {
     });
   }
 };
-
 // @desc    Get single employee
 // @route   GET /api/employees/:id
 // @access  Public
@@ -89,7 +85,6 @@ exports.getEmployee = async (req, res) => {
     });
   }
 };
-
 // @desc    Get employee statistics
 // @route   GET /api/employees/stats/summary
 // @access  Public
@@ -176,7 +171,6 @@ exports.getEmployeeStats = async (req, res) => {
     });
   }
 };
-
 // @desc    Create new employee
 // @route   POST /api/employees
 // @access  Public
@@ -216,7 +210,6 @@ exports.createEmployee = async (req, res) => {
     });
   }
 };
-
 // @desc    Update employee
 // @route   PUT /api/employees/:id
 // @access  Public
@@ -250,7 +243,6 @@ exports.updateEmployee = async (req, res) => {
     });
   }
 };
-
 // @desc    Delete employee
 // @route   DELETE /api/employees/:id
 // @access  Public
