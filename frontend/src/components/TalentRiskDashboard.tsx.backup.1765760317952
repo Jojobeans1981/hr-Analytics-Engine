@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
-import "./EmployeeDashboard.css";
+import React, { useState, useEffect, useCallback } from 'react';
 
 // Define API base URL (adjust as needed)
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
 // Types
 interface Employee {
@@ -26,15 +25,15 @@ const TalentRiskDashboard: React.FC<TalentRiskDashboardProps> = () => {
   const fetchEmployees = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:10000/api/employees", {
+      const response = await fetch(`${API_BASE_URL}/employees`, {
         headers: { 'Content-Type': 'application/json' },
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const result = await response.json();
-      setEmployees(result.data || []);
+
+      const data = await response.json();
       setEmployees(data);
       setError(null);
     } catch (err) {

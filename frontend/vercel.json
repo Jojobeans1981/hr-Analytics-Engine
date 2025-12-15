@@ -1,5 +1,13 @@
 {
-  "installCommand": "npm install --legacy-peer-deps",
-  "buildCommand": "NODE_PATH=./node_modules CI=false npm run build",
-  "framework": "create-react-app"
+  "buildCommand": "npm run build",
+  "outputDirectory": "build",
+  "framework": "create-react-app",
+  "installCommand": "npm install",
+  "regions": ["iad1"],
+  "github": {
+    "enabled": false
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ]
 }

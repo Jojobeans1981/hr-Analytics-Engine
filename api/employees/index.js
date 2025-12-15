@@ -5,7 +5,6 @@ if (!MONGODB_URI) {
   throw new Error('MONGODB_URI environment variable is not defined');
 }
 const MONGODB_DB = process.env.MONGODB_DB || 'talent-risk';
-const MONGODB_DB = process.env.MONGODB_DB || 'talent-risk';
 
 export default async function handler(req, res) {
   // Set CORS headers
