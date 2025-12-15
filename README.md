@@ -159,3 +159,13 @@ THREATS NEUTRALIZED: 12 high-risk employees
 ⚠️ PRODUCTION READY · ⚡ REAL TIME · 🎯 PREDICTIVE · 🛡️ PREVENTIVE
 WEAPONIZED HR INTELLIGENCE · DEPLOYED & ACTIVE
  ✅ DEPLOYED · ✅ ACTIVE · ✅ SYNCED
+
+## ���️ Development Setup
+
+This project uses Git hooks to ensure code quality:
+- **Pre-commit hooks**: Automatically format and lint code
+- **Tools**: Husky, lint-staged, Prettier, ESLint
+- **No manual steps needed**: Just commit normally
+
+All code is automatically formatted on commit.
+
