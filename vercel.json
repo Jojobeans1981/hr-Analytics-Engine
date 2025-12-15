@@ -1,7 +1,8 @@
 {
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/build",
-  "installCommand": "cd frontend && npm install --legacy-peer-deps",
+  "devCommand": "cd dashboard-new && npm start",
+  "installCommand": "cd dashboard-new && npm install",
   "framework": "create-react-app",
   "functions": {
     "api/**/*.js": {

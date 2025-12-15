@@ -35,7 +35,6 @@ const TalentRiskDashboard: React.FC<TalentRiskDashboardProps> = () => {
       }
       const result = await response.json();
       setEmployees(result.data || []);
-      setEmployees(data);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch employees');
@@ -65,6 +64,7 @@ const TalentRiskDashboard: React.FC<TalentRiskDashboardProps> = () => {
   return (
     <div className="talent-risk-dashboard">
       <h1>Talent Risk Dashboard</h1>
+      <div style={{color: "red", fontSize: "20px", padding: "20px", border: "2px solid red", marginBottom: "20px"}}>CSS TEST BOX - Red means CSS is loading</div>
       
       <div className="risk-summary">
         <div className="risk-card high">

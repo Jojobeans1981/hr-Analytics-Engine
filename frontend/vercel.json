@@ -1,13 +1,8 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "build",
-  "framework": "create-react-app",
-  "installCommand": "npm install",
-  "regions": ["iad1"],
-  "github": {
-    "enabled": false
-  },
   "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+    {
+      "source": "/api/:path*",
+      "destination": "https://hr-analytics-engine.onrender.com/api/:path*"
+    }
   ]
 }
