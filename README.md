@@ -160,7 +160,7 @@ THREATS NEUTRALIZED: 12 high-risk employees
 WEAPONIZED HR INTELLIGENCE · DEPLOYED & ACTIVE
  ✅ DEPLOYED · ✅ ACTIVE · ✅ SYNCED
 
-## ���️ Development Setup
+## ���️ Development Setup
 
 This project uses Git hooks to ensure code quality:
 - **Pre-commit hooks**: Automatically format and lint code
@@ -169,3 +169,19 @@ This project uses Git hooks to ensure code quality:
 
 All code is automatically formatted on commit.
 
+The visual interface and frontend components are available for 
+educational purposes. The risk assessment algorithms and business 
+logic remain proprietary.
+
+Educational Use: ✅ Allowed  
+Commercial Use: ❌ Restricted  
+Modification: ✅ For learning purposes  
+Distribution: ❌ Of proprietary components  
+Attribution: ✅ Required
+
+Please respect the terms of use and do not distribute or modify any part
+of this project without explicit permission.
+this project's intellectual property, including algorithms and business logic, 
+is protected. The public repository shows implementation skills while 
+protecting proprietary components
+ 

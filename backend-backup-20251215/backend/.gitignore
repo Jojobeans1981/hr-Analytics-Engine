@@ -1,0 +1,27 @@
+# Development files
+backup/
+*.backup
+*backup*
+quick-test.js
+seed-main.ts
+*seed*
+seeds/
+
+# Dependencies and builds
+node_modules/
+.next/
+out/
+dist/
+build/
+
+# Environment
+.env*
+
+# Editor
+.vscode/
+.idea/
+
+# Vercel
+.vercel
+/seed-main.ts
+/*seed*

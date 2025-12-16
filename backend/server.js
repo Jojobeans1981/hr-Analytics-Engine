@@ -6,6 +6,9 @@ require('dotenv').config();
 const employeeRoutes = require('./routes/employeeRoutes');
 const riskRoutes = require('./routes/riskRoutes');
 
+// Add demo routes - ONLY ONCE
+const demoRouter = require('./src/routes/demo');
+
 const app = express();
 
 // Middleware
@@ -19,15 +22,15 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/talent-ri
 })
 .then(async () => {
   console.log(`‚úÖ Connected to MongoDB: ${mongoose.connection.host}/${mongoose.connection.name}`);
-  
+
   // Test the connection
   const Employee = require('./models/Employee');
   const count = await Employee.countDocuments();
-  console.log(`ÔøΩÔøΩÔøΩ Found ${count} employees in the database`);
-  
+  console.log(`Ì≥ä Found ${count} employees in the database`);
+
   if (count > 0) {
     const sample = await Employee.findOne();
-    console.log(`ÔøΩÔøΩÔøΩ Sample employee: ${sample.name} - ${sample.department} - ${sample.riskScore}%`);
+    console.log(`Ì±§ Sample employee: ${sample.name} - ${sample.department} - ${sample.riskScore}%`);
   }
 })
 .catch(err => {
@@ -37,6 +40,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/talent-ri
 // Routes
 app.use('/api/employees', employeeRoutes);
 app.use('/api/risk', riskRoutes);
+app.use('/api', demoRouter);  // Demo routes: /api/demo/*
 
 // Health check with DB status
 app.get('/health', (req, res) => {
@@ -47,7 +51,7 @@ app.get('/health', (req, res) => {
     2: 'connecting',
     3: 'disconnecting'
   };
-  
+
   res.status(200).json({
     success: true,
     message: 'Server is running',
@@ -71,5 +75,7 @@ app.use('*', (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`ÔøΩÔøΩÔøΩ Server running on port ${PORT}`);
+  console.log(`Ì∫Ä Server running on port ${PORT}`);
+  console.log(`Ì¥ó Demo available: http://localhost:${PORT}/api/demo/health`);
+  console.log(`Ì¥ê Demo credentials: demo / prometheus2025`);
 });

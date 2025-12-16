@@ -1,0 +1,7 @@
+{
+  "jwt": {
+    "secret": "your-default-secret",
+    "expiresIn": "15m",
+    "refreshExpiresIn": "7d"
+  }
+}
