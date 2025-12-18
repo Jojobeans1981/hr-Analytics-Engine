@@ -1,10 +1,11 @@
-const { MongoClient } = require('mongodb');
+import { MongoClient } from 'mongodb';
 
 // ======================
-// CONFIGURATION
+// CONFIGURATION - FIXED CONNECTION STRING
 // ======================
 const CONFIG = {
-  MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://jlpanetta1681:Wookie2011@prometheus.inv2hx4.mongodb.net/talent-risk?retryWrites=true&w=majority',
+  // URL encode the password to handle special characters
+  MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://jlpanetta1681:Wookie2011@prometheus.inv2hx4.mongodb.net/talent-risk?retryWrites=true&w=majority&authSource=admin',
   DB_NAME: 'talent-risk',
   TOTAL_EMPLOYEES: 50,
   CLEAR_EXISTING: true,
@@ -66,65 +67,83 @@ function generateEmployee(id) {
 }
 
 // ======================
-// MAIN SEED FUNCTION
+// MAIN SEED FUNCTION WITH BETTER ERROR HANDLING
 // ======================
 async function seedDatabase() {
   let client;
   try {
-    console.log('üîå Connecting to MongoDB...');
-    client = await MongoClient.connect(CONFIG.MONGODB_URI);
+    console.log('Ì¥å Connecting to MongoDB...');
+    
+    // Test connection with more options
+    client = await MongoClient.connect(CONFIG.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    
+    console.log('‚úÖ Connected successfully!');
     const db = client.db(CONFIG.DB_NAME);
     
+    // Test the connection
+    await db.command({ ping: 1 });
+    console.log('‚úÖ Database ping successful');
+    
     if (CONFIG.CLEAR_EXISTING) {
-      console.log('üóëÔ∏è  Clearing existing employees...');
-      await db.collection('employees').deleteMany({});
+      console.log('Ì∑ëÔ∏è  Clearing existing employees...');
+      const deleteResult = await db.collection('employees').deleteMany({});
+      console.log(`‚úÖ Cleared ${deleteResult.deletedCount} existing employees`);
     }
     
-    console.log(`üå± Generating ${CONFIG.TOTAL_EMPLOYEES} employees...`);
+    console.log(`ÔøΩÔøΩ Generating ${CONFIG.TOTAL_EMPLOYEES} employees...`);
     const employees = [];
     for (let i = 0; i < CONFIG.TOTAL_EMPLOYEES; i++) {
       employees.push(generateEmployee(i));
     }
     
-    console.log('üì• Inserting into database...');
+    console.log('Ì≥• Inserting into database...');
     const result = await db.collection('employees').insertMany(employees);
     
     console.log(`‚úÖ Successfully seeded ${result.insertedCount} employees!`);
-    console.log('\nüë• Sample:');
-    employees.slice(0, 3).forEach(emp => {
-      console.log(`   ‚Ä¢ ${emp.name} - ${emp.department} - ${emp.riskScore}% (${emp.riskLevel})`);
+    
+    // Show risk distribution
+    const highRisk = employees.filter(e => e.riskScore >= 70).length;
+    const medRisk = employees.filter(e => e.riskScore >= 40 && e.riskScore < 70).length;
+    const lowRisk = employees.filter(e => e.riskScore < 40).length;
+    
+    console.log('\nÌ≥ä RISK DISTRIBUTION:');
+    console.log(`   High Risk (‚â•70): ${highRisk} employees`);
+    console.log(`   Medium Risk (40-69): ${medRisk} employees`);
+    console.log(`   Low Risk (<40): ${lowRisk} employees`);
+    
+    console.log('\nÌ±• SAMPLE EMPLOYEES:');
+    employees.slice(0, 5).forEach(emp => {
+      console.log(`   ‚Ä¢ ${emp.employeeId}: ${emp.name} - ${emp.department} - Score: ${emp.riskScore} (${emp.riskLevel})`);
     });
     
-    await db.collection('employees').createIndexes([
-      { key: { employeeId: 1 }, unique: true },
-      { key: { department: 1 } },
-      { key: { riskLevel: 1 } },
-      { key: { riskScore: -1 } }
-    ]);
-    
-    console.log('üìä Indexes created.');
-    
   } catch (error) {
-    console.error('‚ùå Error:', error.message);
+    console.error('‚ùå ERROR DETAILS:');
+    console.error('   Message:', error.message);
+    console.error('   Code:', error.code);
+    console.error('   Name:', error.name);
+    
+    // Provide troubleshooting tips
+    console.log('\nÌ¥ß TROUBLESHOOTING:');
+    console.log('   1. Check if MongoDB Atlas cluster is running');
+    console.log('   2. Verify IP whitelist includes your current IP');
+    console.log('   3. Check password for special characters');
+    console.log('   4. Try connecting via MongoDB Compass first');
+    
   } finally {
     if (client) {
       await client.close();
-      console.log('üîå Connection closed.');
+      console.log('\nÌ¥å Connection closed.');
     }
   }
 }
 
 // ======================
-// RUN WITH ARGS
+// RUN
 // ======================
-const args = process.argv.slice(2);
-if (args.includes('--count')) {
-  const countIndex = args.indexOf('--count');
-  if (args[countIndex + 1]) {
-    CONFIG.TOTAL_EMPLOYEES = parseInt(args[countIndex + 1]);
-    console.log(`üìä Setting count to: ${CONFIG.TOTAL_EMPLOYEES}`);
-  }
-}
-if (args.includes('--keep')) CONFIG.CLEAR_EXISTING = false;
-
+console.log('Ì∫Ä STARTING DATABASE SEED...\n');
 seedDatabase();

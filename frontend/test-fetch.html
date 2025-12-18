@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Test Fetch</h1>
+<script>
+  fetch('https://hr-analytics-engine.onrender.com/api/employees')
+    .then(response => {
+      console.log('Status:', response.status);
+      console.log('Headers:', Object.fromEntries(response.headers.entries()));
+      return response.json();
+    })
+    .then(data => {
+      console.log('Success! Data:', data);
+      document.body.innerHTML += '<p>✅ Fetch successful!</p>';
+      document.body.innerHTML += `<p>Got ${data.count} employees</p>`;
+    })
+    .catch(error => {
+      console.error('Fetch error:', error);
+      document.body.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+    });
+</script>
+</body>
+</html>

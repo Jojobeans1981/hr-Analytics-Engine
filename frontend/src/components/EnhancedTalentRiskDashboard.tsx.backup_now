@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './EmployeeDashboard.css';
-import { Link } from 'react-router-dom';
 
 // Define API base URL
 // Enhanced Types
-
 interface Employee {
   id: string;
   name: string;
@@ -14,10 +12,8 @@ interface Employee {
   performanceRating?: number;
   engagementScore?: number;
   tenureMonths?: number;
-  riskLevel: "LOW" | "MEDIUM" | "HIGH";
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
 }
-
-
 
 interface DepartmentAnalysis {
   name: string;
@@ -29,8 +25,6 @@ interface DepartmentAnalysis {
   topRiskFactors: string[];
   suggestedInterventions: string[];
 }
-
-
 
 interface TrendData {
   timestamp: string;
@@ -46,11 +40,9 @@ const EnhancedTalentRiskDashboard: React.FC = () => {
   const [trends, setTrends] = useState<TrendData[]>([]);
 
   // Fetch employees
-  const fetchEmployees = useCallback(async () => {
-    try {
       setLoading(true);
       const apiUrl = process.env.REACT_APP_API_URL;
-        const response = await fetch(`${apiUrl}/api/employees`, {
+      const response = await fetch(`${apiUrl}/api/employees`, {
         headers: { 'Content-Type': 'application/json' },
       });
 
@@ -203,14 +195,9 @@ const EnhancedTalentRiskDashboard: React.FC = () => {
           <p>High-risk employees: +4 since last month</p>
         </div>
         <div className="summary-card intervention">
-          <h3>���️ Preventive Measures</h3>
-          <div className="recommendations-overview">
-            <p><strong>{departmentAnalysis.reduce((sum, dept) => sum + dept.suggestedInterventions.length, 0)} interventions recommended</strong></p>
-            <Link to="/interventions" className="view-interventions-btn">
-              View All Interventions →
-            </Link>
-          </div>
-          <p className="impact-note">Estimated retention impact: 23-40% improvement potential</p>
+          <h3>🛡️ Preventive Measures</h3>
+          <p>{departmentAnalysis.reduce((sum, dept) => sum + dept.suggestedInterventions.length, 0)} interventions recommended</p>
+          <p>Estimated retention impact: 23-40% improvement potential</p>
         </div>
       </div>
 
@@ -276,4 +263,4 @@ const EnhancedTalentRiskDashboard: React.FC = () => {
   );
 };
 
-export default EnhancedTalentRiskDashboard;
+export default EnhancedTalentRiskDashboard;// test comment

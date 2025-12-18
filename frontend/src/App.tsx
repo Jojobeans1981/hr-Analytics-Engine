@@ -1,17 +1,17 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import EnhancedTalentRiskDashboard from './components/EnhancedTalentRiskDashboard';
+import InterventionsPage from './components/InterventionsPage';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<EnhancedTalentRiskDashboard />} />
+        <Route path="/interventions" element={<InterventionsPage />} />
       </Routes>
     </Router>
   );
 }
 
-export default App; // Force redeploy Sat, Dec 13, 2025  1:15:10 PM
-// another test
-// final test
-// Husky test comment - Mon, Dec 15, 2025 11:52:47 AM
+export default App;

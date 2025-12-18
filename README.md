@@ -1,3 +1,42 @@
+TODO FOR TOMORROW - PROMETHEUS DEPLOYMENT FIX
+
+STATUS:
+
+✅ Backend: https://hr-analytics-engine.onrender.com WORKING
+
+❌ Frontend: Still fetching from itself instead of backend
+
+🔧 Fix attempted: Rebuilt with REACT_APP_API_URL=https://hr-analytics-engine.onrender.com
+
+NEXT STEPS:
+
+Check if URL is in build:
+
+bash
+cd ~/Desktop/talent-risk-ai/frontend
+grep -r "hr-analytics-engine" build/ | head -n 50
+If URL shows → Deploy: vercel --prod
+
+If URL missing → Debug env var embedding
+
+Test deployment → Check Network tab for correct backend URL
+
+Make Vercel project public in settings
+
+BRANCH STRATEGY:
+
+main: Deployment fixes (current branch)
+
+demo-version: Demo features (separate branch)
+
+CRITICAL FILES:
+
+frontend/.env.production: Has correct URL
+
+frontend/src/components/TalentRiskDashboard.tsx: Uses env var
+
+prometheus-backend/server.js: CORS configured
+
 # ⚡ TALENT RISK NUCLEUS ⚡
 
 ## 🚀 REAL-TIME PREDICTIVE RISK INTELLIGENCE
