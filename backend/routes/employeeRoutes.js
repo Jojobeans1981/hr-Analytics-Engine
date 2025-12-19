@@ -9,7 +9,7 @@ const {
   deleteEmployee,
 } = require('../controllers/employeeController');
 
-const aiRecommendationService = require('../../backend/backend/services/aiRecommendationService');
+const aiRecommendationService = require('../services/aiRecommendationService');
 const Employee = require('../models/Employee');
 
 // GET /api/employees
