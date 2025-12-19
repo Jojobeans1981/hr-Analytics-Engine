@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   getEmployees,
-  getEmployeeById,
+  getEmployee, // Note: controller has getEmployee, not getEmployeeById
   updateEmployee,
   createEmployee,
   deleteEmployee,
@@ -24,64 +24,39 @@ router.post('/:id/generate-recommendations', async (req, res) => {
       employee = await Employee.findById(req.params.id);
     } catch (err) {
       console.log('Not a valid ObjectId, trying employeeId or email...');
-      // If not a valid ObjectId, try finding by employeeId or other field
       employee = await Employee.findOne({
         $or: [{ employeeId: req.params.id }, { email: req.params.id }],
       });
     }
 
-    // If employee not found in DB, use request body data (for testing)
+    // If employee not found in DB, use request body data
     if (!employee) {
       console.log('Employee not found in database, using request body data');
       employee = req.body;
-      // Add ID fields for consistency
       employee._id = req.params.id;
       employee.employeeId = req.params.id;
     } else {
       console.log('Found employee in database:', employee.name || 'Unknown');
-      // Convert mongoose document to plain object
       employee = employee.toObject();
     }
 
-    // Check risk level - allow any risk level for now
-    // Original code only allowed 'HIGH', but we'll allow all
-    const riskLevel = employee.riskLevel || req.body.riskLevel;
-    console.log('Employee risk level:', riskLevel);
+    console.log('Employee data:', {
+      name: employee.name,
+      department: employee.department,
+      riskLevel: employee.riskLevel,
+    });
 
-    // Generate recommendations using the correct function name
+    // Generate recommendations
     const recommendations = await generateAIRecommendations(employee);
 
-    // Try to update employee with AI recommendations if it exists in DB
-    if (employee._id && employee._id.toString().length === 24) {
-      // Valid MongoDB ID
-      try {
-        await Employee.findByIdAndUpdate(
-          employee._id,
-          {
-            $set: {
-              aiRecommendations: recommendations,
-              recommendationGeneratedAt: new Date(),
-            },
-          },
-          { new: true },
-        );
-        console.log('Updated employee with recommendations');
-      } catch (updateError) {
-        console.log(
-          'Could not update employee with recommendations:',
-          updateError.message,
-        );
-      }
-    }
-
+    // Return response
     res.json({
       success: true,
       message: 'AI recommendations generated',
       data: recommendations,
       employeeId: req.params.id,
       employeeName: employee.name || 'Unknown',
-      riskLevel: riskLevel,
-      usedDatabase: !!employee._id,
+      riskLevel: employee.riskLevel || 'Not specified',
     });
   } catch (error) {
     console.error('Error generating recommendations:', error);
@@ -89,7 +64,6 @@ router.post('/:id/generate-recommendations', async (req, res) => {
       success: false,
       message: 'Failed to generate recommendations',
       error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
     });
   }
 });
@@ -97,8 +71,8 @@ router.post('/:id/generate-recommendations', async (req, res) => {
 // GET /api/employees
 router.get('/', getEmployees);
 
-// GET /api/employees/:id
-router.get('/:id', getEmployeeById);
+// GET /api/employees/:id - using getEmployee (not getEmployeeById)
+router.get('/:id', getEmployee);
 
 // PUT /api/employees/:id
 router.put('/:id', updateEmployee);
