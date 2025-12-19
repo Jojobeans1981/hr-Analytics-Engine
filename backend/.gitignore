@@ -25,3 +25,5 @@ build/
 .vercel
 /seed-main.ts
 /*seed*
+dist/
+node_modules/
