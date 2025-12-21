@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const riskScoringService = require('../backend/scoring/RiskScoringService');
-const riskAnalyticsService = require('../backend/analytics/RiskAnalyticsService');
+const riskScoringService = require("../services/RiskScoringService");
+const riskAnalyticsService = require("../services/RiskAnalyticsService");
 
 // Get risk score for an employee
 router.post('/calculate/:employeeId', async (req, res) => {

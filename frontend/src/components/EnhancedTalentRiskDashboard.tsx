@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './EmployeeDashboard.css';
-import { Link } from 'react-router-dom';
-
+import PrometheusHeader from './PrometheusHeader';
 // Define API base URL
 // Enhanced Types
-
 interface Employee {
   id: string;
   name: string;
@@ -14,10 +12,8 @@ interface Employee {
   performanceRating?: number;
   engagementScore?: number;
   tenureMonths?: number;
-  riskLevel: "LOW" | "MEDIUM" | "HIGH";
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
 }
-
-
 
 interface DepartmentAnalysis {
   name: string;
@@ -30,26 +26,17 @@ interface DepartmentAnalysis {
   suggestedInterventions: string[];
 }
 
-
-
-interface TrendData {
-  timestamp: string;
-  avgRiskScore: number;
-  highRiskCount: number;
-}
-
 const EnhancedTalentRiskDashboard: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [departmentAnalysis, setDepartmentAnalysis] = useState<DepartmentAnalysis[]>([]);
-  const [trends, setTrends] = useState<TrendData[]>([]);
 
   // Fetch employees
   const fetchEmployees = useCallback(async () => {
     try {
       setLoading(true);
-      const apiUrl = process.env.REACT_APP_API_URL;
+    const apiUrl = process.env.REACT_APP_API_URL;
         const response = await fetch(`${apiUrl}/api/employees`, {
         headers: { 'Content-Type': 'application/json' },
       });
@@ -58,10 +45,8 @@ const EnhancedTalentRiskDashboard: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json();
-      
-      // Map backend data to frontend format
-      const mappedEmployees = (result.data || []).map((emp: any) => ({
+      const data = await response.json();
+      const mappedEmployees = data.map((emp: any) => ({
         id: emp.employeeId || emp._id,  // Use employeeId as id, fallback to _id
         name: emp.name,
         department: emp.department,
@@ -74,8 +59,6 @@ const EnhancedTalentRiskDashboard: React.FC = () => {
       }));
       
       setEmployees(mappedEmployees);
-      console.log('Employees data:', mappedEmployees);
-      console.log('First employee:', mappedEmployees[0]);
       console.log('Employees data:', mappedEmployees);
       console.log('First employee:', mappedEmployees[0]);
       setError(null);
@@ -167,7 +150,7 @@ const EnhancedTalentRiskDashboard: React.FC = () => {
   useEffect(() => {
     if (employees.length > 0) {
       setDepartmentAnalysis(analyzeDepartments(employees));
-      setTrends(generateTrends(employees));
+      // setTrends(generateTrends(employees));
     }
   }, [employees, analyzeDepartments, generateTrends]);
 
@@ -187,6 +170,7 @@ const EnhancedTalentRiskDashboard: React.FC = () => {
 
   return (
     <div className="talent-risk-dashboard">
+      <PrometheusHeader />
       <h1>⚡ Predictive Talent Risk Intelligence</h1>
       <p className="subtitle">Real-time risk assessment & preventive intervention planning</p>
 
@@ -203,14 +187,9 @@ const EnhancedTalentRiskDashboard: React.FC = () => {
           <p>High-risk employees: +4 since last month</p>
         </div>
         <div className="summary-card intervention">
-          <h3>���️ Preventive Measures</h3>
-          <div className="recommendations-overview">
-            <p><strong>{departmentAnalysis.reduce((sum, dept) => sum + dept.suggestedInterventions.length, 0)} interventions recommended</strong></p>
-            <Link to="/interventions" className="view-interventions-btn">
-              View All Interventions →
-            </Link>
-          </div>
-          <p className="impact-note">Estimated retention impact: 23-40% improvement potential</p>
+          <h3>🛡️ Preventive Measures</h3>
+          <p>{departmentAnalysis.reduce((sum, dept) => sum + dept.suggestedInterventions.length, 0)} interventions recommended</p>
+          <p>Estimated retention impact: 23-40% improvement potential</p>
         </div>
       </div>
 
@@ -276,4 +255,4 @@ const EnhancedTalentRiskDashboard: React.FC = () => {
   );
 };
 
-export default EnhancedTalentRiskDashboard;
+export default EnhancedTalentRiskDashboard;// test comment

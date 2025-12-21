@@ -38,22 +38,21 @@ const EnhancedTalentRiskDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [departmentAnalysis, setDepartmentAnalysis] = useState<DepartmentAnalysis[]>([]);
   const [trends, setTrends] = useState<TrendData[]>([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState<string | null>(null);
+  const [aiRecommendations, setAiRecommendations] = useState<any[]>([]);
+  const [selectedEmployeeName, setSelectedEmployeeName] = useState<string>("");
 
   // Fetch employees
+  const fetchEmployees = useCallback(async () => {
+    try {
       setLoading(true);
-      const apiUrl = process.env.REACT_APP_API_URL;
-      const response = await fetch(`${apiUrl}/api/employees`, {
+    const apiUrl = process.env.REACT_APP_API_URL;
+        const response = await fetch(`${apiUrl}/api/employees`, {
         headers: { 'Content-Type': 'application/json' },
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      
-      // Map backend data to frontend format
-      const mappedEmployees = (result.data || []).map((emp: any) => ({
         id: emp.employeeId || emp._id,  // Use employeeId as id, fallback to _id
         name: emp.name,
         department: emp.department,
@@ -169,28 +168,9 @@ const EnhancedTalentRiskDashboard: React.FC = () => {
   console.log('High risk employees:', employees.filter(e => e.riskScore >= 60).map(e => ({name: e.name, riskScore: e.riskScore})));
   const criticalDepartments = departmentAnalysis.filter(dept => dept.highRiskCount > 0);
   
-
-  // Loading state - show spinner while fetching data
   if (loading) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '500px',
-        color: '#666',
-        textAlign: 'center',
-        padding: '40px'
-      }}>
-        <div>
-          <div style={{ fontSize: '48px', marginBottom: '20px', color: '#3f51b5' }}>⏳</div>
-          <h3>Loading Talent Risk Data...</h3>
-          <p>Fetching employee information</p>
-        </div>
-      </div>
-    );
+    return <div className="loading">Loading predictive risk intelligence...</div>;
   }
-
 
   if (error) {
     return <div className="error">Error: {error}</div>;
