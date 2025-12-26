@@ -16,31 +16,36 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/talent-risk', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(async () => {
-  console.log(`âœ… Connected to MongoDB: ${mongoose.connection.host}/${mongoose.connection.name}`);
+mongoose
+  .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/talent-risk', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(async () => {
+    console.log(
+      `âœ… Connected to MongoDB: ${mongoose.connection.host}/${mongoose.connection.name}`,
+    );
 
-  // Test the connection
-  const Employee = require('./models/Employee');
-  const count = await Employee.countDocuments();
-  console.log(`í³Š Found ${count} employees in the database`);
+    // Test the connection
+    const Employee = require('./models/Employee');
+    const count = await Employee.countDocuments();
+    console.log(`ï¿½ï¿½ï¿½ Found ${count} employees in the database`);
 
-  if (count > 0) {
-    const sample = await Employee.findOne();
-    console.log(`í±¤ Sample employee: ${sample.name} - ${sample.department} - ${sample.riskScore}%`);
-  }
-})
-.catch(err => {
-  console.error('âŒ MongoDB connection error:', err.message);
-});
+    if (count > 0) {
+      const sample = await Employee.findOne();
+      console.log(
+        `ï¿½ï¿½ï¿½ Sample employee: ${sample.name} - ${sample.department} - ${sample.riskScore}%`,
+      );
+    }
+  })
+  .catch((err) => {
+    console.error('âŒ MongoDB connection error:', err.message);
+  });
 
 // Routes
 app.use('/api/employees', employeeRoutes);
 app.use('/api/risk', riskRoutes);
-app.use('/api', demoRouter);  // Demo routes: /api/demo/*
+app.use('/api', demoRouter); // Demo routes: /api/demo/*
 
 // Health check with DB status
 app.get('/health', (req, res) => {
@@ -49,7 +54,7 @@ app.get('/health', (req, res) => {
     0: 'disconnected',
     1: 'connected',
     2: 'connecting',
-    3: 'disconnecting'
+    3: 'disconnecting',
   };
 
   res.status(200).json({
@@ -58,10 +63,10 @@ app.get('/health', (req, res) => {
     database: {
       name: mongoose.connection.name,
       status: statusMap[dbStatus] || 'unknown',
-      connected: dbStatus === 1
+      connected: dbStatus === 1,
     },
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 
@@ -69,13 +74,15 @@ app.get('/health', (req, res) => {
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
-    error: 'Endpoint not found'
+    error: 'Endpoint not found',
   });
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`íº€ Server running on port ${PORT}`);
-  console.log(`í´— Demo available: http://localhost:${PORT}/api/demo/health`);
-  console.log(`í´ Demo credentials: demo / prometheus2025`);
+const PORT = process.env.PORT || 10000; // Use Render's PORT, default to 10000
+
+app.listen(PORT, '0.0.0.0', () => {
+  // Bind to all network interfaces
+  console.log(`Server running on port ${PORT}`);
+  console.log(`ï¿½ï¿½ï¿½ Demo available: http://localhost:${PORT}/api/demo/health`);
+  console.log(`ï¿½ï¿½ï¿½ Demo credentials: demo / prometheus2025`);
 });
